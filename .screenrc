@@ -1,0 +1,42 @@
+hardstatus alwayslastline
+hardstatus string '%{= kG}[ %{G}%H %{g}] [load: %l] [%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
+
+# terminfo and termcap for nice 256 color terminal
+# allow bold colors - necessary for some reason
+attrcolor b ".I" 
+# tell screen how to set colors. AB = background, AF=foreground 
+termcapinfo xterm 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm' 
+# erase background with current bg color 
+defbce "on"
+
+#:: Set 'term screen-256color' or use 'term screen-256color-bce'
+   #with 'defbce on' in ~/.screenrc to use 256 colors
+
+
+startup_message off
+
+term xterm
+#term xterm-256color
+
+altscreen on
+
+# some termcaps
+#termcapinfo xterm-256color 'Co#256:AB=\E[48;5;%dm:AF=\E[38;5;%dm'
+
+vbell off
+defscrollback 5000
+
+# Default screens
+#screen -t emacs      0	emacs -nw -Q
+#screen -t top	     2  top
+#screen -t ipython3   0 ipython3 -pylab
+screen -t shell      0
+select 0
+
+# Define a sane GNU screen command entry character
+# first letter defines the screen command key.
+# second letter defines the literal insert key.
+#escape "^T^T"
+escape "^]^]"
+
+
