@@ -1,0 +1,71 @@
+# Create own window instead of using desktop (required in nautilus)
+own_window yes
+own_window_type normal
+own_window_transparent yes
+own_window_hints undecorated,below,sticky,skip_taskbar,skip_pager
+background yes
+double_buffer yes
+use_spacer none
+update_interval 5
+
+# Use Xft?
+use_xft yes
+# Xft font when Xft is enabled
+xftfont DejaVu Sans Condensed Bold:pixelsize=14
+# Text alpha when using Xft
+xftalpha 0.7
+#Case - set to yes if you want all text to be in uppercase
+uppercase no
+#Colour
+default_color white
+
+#Borders
+#draw_shades used to be yes
+draw_shades yes
+default_outline_color black
+default_shade_color black
+#amplifies text if yes
+draw_outline no 
+draw_borders no
+stippled_borders 3
+border_margin 9
+border_width 10
+draw_graph_borders yes
+
+#Placement
+alignment middle_right
+gap_x 15
+#gap_y 200
+
+cpu_avg_samples 2
+
+TEXT
+${time %H:%M} ${color 729FCF}${time %a, }${color white}${time %b %d %G} $alignr${color 729FCF}UP ${color white}$uptime
+#${color 729FCF}${font OpenLogos:size=20}N $font${color white}$kernel${color black}$hr
+$alignc${color 729FCF}${font OpenLogos:size=40}NO $font
+${color white}$kernel${color black}$hr
+    ${color 729FCF}Load $alignr${color white}$loadavg
+    ${color 729FCF}CPU${color white}$alignr${cpu cpu0}%
+    ${cpugraph 0 729fcf 000000}
+    ${color 729FCF}RAM${color white}$alignr$mem/$memmax - $memperc%
+    ${color 729FCF}R00T${color white}$alignr${fs_used /}/${fs_size /} - ${fs_free_perc /}%
+    ${color 729FCF}HOME${color white}$alignr${fs_used /home}/${fs_size /home} - ${fs_free_perc /home}%
+    ${color 729FCF}SWAP${color white}$alignr$swapperc%
+    ${color white}${diskiograph 729fcf 000000}
+    ${voffset -30}${alignc}${color BED2E8}Disk I/O:${color white} $diskio
+        
+${color white}PROGS${color black}$hr
+    ${color 729FCF}Top 3 ${color white}CPU${color black}$hr${color white} 
+    ${top name 1}$alignr${top cpu 1}%
+    ${top name 2}$alignr${top cpu 2}%
+    ${top name 3}$alignr${top cpu 3}%
+    ${color 729FCF}Top 3 ${color white}MEM${color black}$hr${color white} 
+    ${top_mem name 1}$alignr${top_mem mem 1}%
+    ${top_mem name 2}$alignr${top_mem mem 2}%
+    ${top_mem name 3}$alignr${top_mem mem 3}%
+${color white}NETWORK${color black}$hr
+    ${color 729FCF}${font PizzaDude Bullets:size=10}O$font ${color white}${totalup eth0}$alignr${upspeed eth0}/s
+    ${color 729FCF}${font PizzaDude Bullets:size=10}U$font ${color white}${totaldown eth0}$alignr${downspeed eth0}/s
+    ${color 729FCF}IP Address${color white}$alignr${addr eth0}
+    ${upspeedgraph eth0 -t}
+${color black}$hr
