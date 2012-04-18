@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Synapse
+Type=Application
+Exec=/usr/bin/conky
+Encoding=UTF-8
+X-GNOME-Autostart-enabled=true
+Name[en_US]=conky
+Name=conky
+Comment[en_US]=conky
+Comment=conky
