@@ -28,7 +28,6 @@ default_shade_color black
 draw_outline no 
 draw_borders no
 stippled_borders 3
-border_margin 9
 border_width 10
 draw_graph_borders yes
 
@@ -41,8 +40,8 @@ cpu_avg_samples 2
 
 TEXT
 ${time %H:%M} ${color 729FCF}${time %a, }${color white}${time %b %d %G} $alignr${color 729FCF}UP ${color white}$uptime
-#${color 729FCF}${font OpenLogos:size=20}N $font${color white}$kernel${color black}$hr
-$alignc${color 729FCF}${font OpenLogos:size=40}NO $font
+#${color 729FCF}${font OpenLogos:size=20}B $font${color white}$kernel${color black}$hr
+$alignc${color 729FCF}${font OpenLogos:size=40}AB $font
 ${color white}$kernel${color black}$hr
     ${color 729FCF}Load $alignr${color white}$loadavg
     ${color 729FCF}CPU${color white}$alignr${cpu cpu0}%
@@ -64,8 +63,8 @@ ${color white}PROGS${color black}$hr
     ${top_mem name 2}$alignr${top_mem mem 2}%
     ${top_mem name 3}$alignr${top_mem mem 3}%
 ${color white}NETWORK${color black}$hr
-    ${color 729FCF}${font PizzaDude Bullets:size=10}O$font ${color white}${totalup eth0}$alignr${upspeed eth0}/s
-    ${color 729FCF}${font PizzaDude Bullets:size=10}U$font ${color white}${totaldown eth0}$alignr${downspeed eth0}/s
-    ${color 729FCF}IP Address${color white}$alignr${addr eth0}
-    ${upspeedgraph eth0 -t}
+    ${color 729FCF}${font PizzaDude Bullets:size=10}O$font ${color white}${totalup wlan0}$alignr${upspeed wlan0}/s
+    ${color 729FCF}${font PizzaDude Bullets:size=10}U$font ${color white}${totaldown wlan0}$alignr${downspeed wlan0}/s
+    ${color 729FCF}IP Address${color white}$alignr${addr wlan0}
+    ${upspeedgraph wlan0 -t}
 ${color black}$hr
