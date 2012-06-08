@@ -1,0 +1,43 @@
+background yes
+update_interval 1
+
+cpu_avg_samples 4
+net_avg_samples 2
+temperature_unit celsius
+
+double_buffer yes
+no_buffers yes
+text_buffer_size 1024
+
+gap_x 10
+gap_y 740
+minimum_size 100 280
+maximum_width 300
+own_window yes
+own_window_type conky
+own_window_argb_value 0
+own_window_transparent yes
+own_window_hints undecorate,sticky,skip_taskbar,skip_pager,below
+border_inner_margin 0
+border_outer_margin 0
+alignment tl
+
+draw_shades no
+draw_outline no
+draw_borders no
+draw_graph_borders no
+
+override_utf8_locale yes
+use_xft yes
+xftfont caviar dreams:size=8
+xftalpha 0.5
+uppercase no
+
+TEXT
+
+
+
+
+${font Ubuntu:size=12:weight=bold}
+TODO:
+${font Ubuntu:size=10}${execpi 10 /home/paanini/Scripts/todo.txt/todo.sh -d /home/paanini/Scripts/todo.txt/config-conky -n ls}
