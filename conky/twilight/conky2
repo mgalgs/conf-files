@@ -40,7 +40,7 @@ lua_draw_hook_post main
 color1 EAEAEA
 
 TEXT
-${color1}${voffset 60}
+${color1}${voffset 30}
 ${offset 80}${font Cantarell:size=12:weight=bold}CPU
 ${voffset 90}
 ${offset 45}${font Cantarell:size=12:weight=bold}MEMORY
@@ -48,5 +48,12 @@ ${voffset 80}
 ${offset 47}${font Cantarell:size=12:weight=bold}BATTERY
 ${voffset 90}
 ${offset 45}${font Cantarell:size=12:weight=bold}DISK-FREE
+
+
+${color 729FCF}${font PizzaDude Bullets:size=10}O${font Cantarell:size=8:weight=bold} ${color white}${totalup wlan0}$alignr${upspeed wlan0}/s
+${color 729FCF}${font PizzaDude Bullets:size=10}U${font Cantarell:size=8:weight=bold} ${color white}${totaldown wlan0}$alignr${downspeed wlan0}/s
+${color 729FCF}IP Address${color white}$alignr${addr wlan0}
+${upspeedgraph wlan0 -t}
+
 #${font Cantarell:size=10}${alignr 40}${exec python ~/Scripts/data2}
 #${color1} ${execi 30 cat /home/paanini/Scripts/todo.txt | fold -w40 }
