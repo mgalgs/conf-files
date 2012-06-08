@@ -14,7 +14,7 @@ gap_y 30
 minimum_size 1065 170
 maximum_width 1070
 own_window yes
-own_window_type conky
+# own_window_type conky
 own_window_argb_value 0
 own_window_transparent yes
 own_window_hints undecorate,sticky,skip_taskbar,skip_pager,below
@@ -33,7 +33,7 @@ xftfont caviar dreams:size=8
 xftalpha 0.5
 uppercase no
 
-lua_load ~/.conky/clock.lua
+lua_load ~/conf-files/conky/twilight/clock.lua
 lua_draw_hook_pre draw_clock
 
 color1 FCFCFC
