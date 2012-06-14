@@ -1,7 +1,7 @@
 [Desktop Entry]
 Name=Synapse
 Type=Application
-Exec=$HOME/conky-start.sh
+Exec=conky-start.sh
 Encoding=UTF-8
 X-GNOME-Autostart-enabled=true
 Name[en_US]=conky
