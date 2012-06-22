@@ -14,6 +14,8 @@
 	gr = log --graph --full-history --all --color --decorate --oneline
 	grdate = log --graph --full-history --all --color --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d'
 	loneline = log --oneline
+	ribbon-set = tag --force _ribbon origin/master
+	ribbon-catchup = log --patch --reverse --topo-order _ribbon..origin/master
 [merge]
 	tool = meld
 [github]

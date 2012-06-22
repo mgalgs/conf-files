@@ -4,3 +4,7 @@
 TAGS
 *.elc
 *.class
+GPATH
+GRTAGS
+GTAGS
+ID
