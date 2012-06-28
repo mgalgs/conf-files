@@ -16,6 +16,7 @@
 	loneline = log --oneline
 	ribbon-set = tag --force _ribbon origin/master
 	ribbon-catchup = log --patch --reverse --topo-order _ribbon..origin/master
+	toplevel = rev-parse --show-toplevel
 [merge]
 	tool = meld
 [github]
