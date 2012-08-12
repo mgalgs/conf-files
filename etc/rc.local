@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# /etc/rc.local: Local multi-user start-up script.
+#
+
+echo 7 > /sys/class/backlight/acpi_video0/brightness
