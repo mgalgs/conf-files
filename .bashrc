@@ -43,3 +43,4 @@ alias pls='ls++ -t -B'
 manopt() { man $1 | sed -n "/^\s\+-\+$2\b/,/^\s*$/p"|sed '$d;'; } 
 alias hilite='src-hilite-lesspipe.sh'
 
+[[ -e /usr/share/git/git-prompt.sh ]] && source /usr/share/git/git-prompt.sh
