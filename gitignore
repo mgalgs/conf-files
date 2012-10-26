@@ -9,3 +9,8 @@ GRTAGS
 GTAGS
 ID
 *.pyc
+outgoing/
+*.o
+*.in
+.deps
+aclocal.m4
