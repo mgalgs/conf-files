@@ -39,4 +39,4 @@ select 0
 #escape "^T^T"
 escape "^]^]"
 
-
+ignorecase on
