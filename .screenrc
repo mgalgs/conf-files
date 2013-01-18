@@ -40,3 +40,6 @@ select 0
 escape "^]^]"
 
 ignorecase on
+
+# flush the logfile every second:
+logfile flush 1
