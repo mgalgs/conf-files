@@ -30,8 +30,8 @@ defscrollback 5000
 #screen -t emacs      0	emacs -nw -Q
 #screen -t top	     2  top
 #screen -t ipython3   0 ipython3 -pylab
-screen -t shell      0
-select 0
+#screen -t shell      0
+#select 0
 
 # Define a sane GNU screen command entry character
 # first letter defines the screen command key.
