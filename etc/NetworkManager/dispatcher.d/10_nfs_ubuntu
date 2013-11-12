@@ -1,0 +1,14 @@
+#!/bin/sh
+
+INTERFACE=$1
+STATUS=$2
+echo "NetworkManager dispatch script: $0 $1 $2"
+
+case "$STATUS" in
+    "up")
+	mount /media/space
+	;;
+    "down")
+	umount /media/space
+	;;
+esac
