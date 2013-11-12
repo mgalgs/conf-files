@@ -14,6 +14,7 @@
 	pager = less -R -F -X
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
+	grjustme = log --graph --full-history --color --decorate --oneline
 	grdate = log --graph --full-history --all --color --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d'
 	loneline = log --oneline
 	ribbon-set = tag --force _ribbon origin/master
@@ -25,3 +26,5 @@
 	user = mgalgs
 	token = ae3c591d1a785b241b33bd112c0d1449
 	oauth-token = fe77b505d2d3d8d61619602f213f090944f77805
+[push]
+	default = simple
