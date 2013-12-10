@@ -28,3 +28,7 @@
 	oauth-token = fe77b505d2d3d8d61619602f213f090944f77805
 [push]
 	default = simple
+[pager]
+        log = diff-highlight | less
+        show = diff-highlight | less
+        diff = diff-highlight | less
