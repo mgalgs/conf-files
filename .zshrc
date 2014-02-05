@@ -65,7 +65,7 @@ alias grquickhead="git grquick | head"
 alias grjustmehead="git grjustme | head"
 alias em="emacs -Q -nw --eval '(ido-mode)'"
 alias emc='emacsclient -n -a emacs'
-alias vm='emacsclient -nw -a emacs'
+alias vm='emacsclient -nw -a emacs -nw'
 alias gistatus='git status'
 alias hilite='src-hilite-lesspipe.sh'
 alias pidgin_fixed="NSS_SSL_CBC_RANDOM_IV=0 pidgin"
