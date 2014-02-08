@@ -35,7 +35,7 @@ DISABLE_CORRECTION="true"
 # Uncomment following line if you want to disable marking untracked files under
 # VCS as dirty. This makes repository status check for large repositories much,
 # much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
+DISABLE_UNTRACKED_FILES_DIRTY="true"
 
 # Uncomment following line if you want to  shown in the command execution time stamp 
 # in the history command output. The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|
@@ -58,28 +58,19 @@ path=(
     /usr/bin/vendor_perl
     $HOME/scripts
     $HOME/qbin
-    $HOME/bin
-    $HOME/bin/emacs-git/bin
-    $HOME/bin/emacs-my-24.3/bin
+    $HOME/opt/emacs-git/bin
 )
 
 source /usr/share/doc/pkgfile/command-not-found.zsh
 
-_my_rdesktop_local_sound="-r disk:tmp=/tmp -r sound:local"
-alias grquickhead="git grquick | head"
-alias grjustmehead="git grjustme | head"
-alias em="emacs -Q -nw --eval '(ido-mode)'"
-alias emc='emacsclient -n -a emacs'
-alias vm='emacsclient -nw -a emacs -nw'
-alias gistatus='git status'
-alias hilite='src-hilite-lesspipe.sh'
-alias pidgin_fixed="NSS_SSL_CBC_RANDOM_IV=0 pidgin"
-alias akmsg="adb wait-for-device; adb root; sleep 1; adb wait-for-device; adb shell cat /proc/kmsg"
-alias alogcat="adb wait-for-device; sleep 5; adb wait-for-device; adb logcat"
-alias aroot="adb wait-for-device; adb root; sleep 1; adb wait-for-device"
-alias areboot="adb wait-for-device; adb reboot"
-alias jsonprettydump="python -c 'import json,sys; print json.dumps(json.load(sys.stdin), indent=4)'"
-alias ls='ls -B --color=auto'
+selfmail()
+{
+    msmtp -a gmail mitch.special@gmail.com <<<"To: mitch.special@gmail.com
+From: mitch.special@gmail.com
+Subject: selfmail: $1
+
+$2"
+}
 
 # fix up some aliases from oh-my-zsh plugins:
 unalias gm
@@ -130,5 +121,7 @@ bindkey '^U' backward-kill-line
 
 # reverse search with globbing
 bindkey '^r' history-incremental-pattern-search-backward
+
+source ~/scripts/dot_useful_aliases
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
