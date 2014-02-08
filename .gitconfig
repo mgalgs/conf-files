@@ -15,6 +15,7 @@
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
 	grjustme = log --graph --full-history --color --decorate --oneline
+	grquick = log --graph --full-history --color --decorate --oneline HEAD~50..
 	grdate = log --graph --full-history --all --color --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d'
 	loneline = log --oneline
 	ribbon-set = tag --force _ribbon origin/master
