@@ -71,6 +71,8 @@ Subject: selfmail: $1
 
 $2"
 }
+# depends on setopt extendedglob:
+alias croot='cd (../)#.repo(:h)'
 
 # fix up some aliases from oh-my-zsh plugins:
 unalias gm
@@ -103,6 +105,8 @@ setopt no_check_jobs
 setopt no_hup
 # override from ~/.oh-my-zsh/lib/history.zsh:
 setopt no_share_history
+setopt interactivecomments
+setopt extendedglob
 
 ## don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
@@ -110,8 +114,6 @@ zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
 # remember recent working directories. See zshcontrib(1).
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
 add-zsh-hook chpwd chpwd_recent_dirs
-
-setopt interactivecomments
 
 autoload edit-command-line
 zle -N edit-command-line
