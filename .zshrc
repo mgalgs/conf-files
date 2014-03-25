@@ -124,6 +124,9 @@ bindkey '^U' backward-kill-line
 # reverse search with globbing
 bindkey '^r' history-incremental-pattern-search-backward
 
+autoload -U select-word-style
+select-word-style bash
+
 source ~/scripts/dot_useful_aliases
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
