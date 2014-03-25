@@ -34,3 +34,6 @@
     smtpserver = smtp.gmail.com
     smtpuser = mitch.special@gmail.com
     smtpserverport = 587
+[rebase]
+	autosquash = true
+	autostash = true
