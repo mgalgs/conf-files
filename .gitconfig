@@ -29,3 +29,8 @@
 #         log = diff-highlight | less
 #         show = diff-highlight | less
 #         diff = diff-highlight | less
+[sendemail]
+    smtpencryption = tls
+    smtpserver = smtp.gmail.com
+    smtpuser = mitch.special@gmail.com
+    smtpserverport = 587
