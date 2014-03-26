@@ -12,6 +12,7 @@
 [core]
 	excludesfile = /home/mgalgs/.gitignore
 	pager = less -R -F -X
+	abbrev = 10
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
 	grjustme = log --graph --full-history --color --decorate --oneline
