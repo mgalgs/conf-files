@@ -64,7 +64,7 @@ path=(
     $HOME/opt/emacs-git/bin
 )
 
-source /usr/share/doc/pkgfile/command-not-found.zsh
+[[ -r /usr/share/doc/pkgfile/command-not-found.zsh ]] && source /usr/share/doc/pkgfile/command-not-found.zsh
 
 selfmail()
 {
