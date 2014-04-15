@@ -56,9 +56,12 @@ source $ZSH/oh-my-zsh.sh
 path=(
     /usr/local/sbin
     /usr/local/bin
+    /usr/sbin
     /usr/bin
     /usr/bin/core_perl
     /usr/bin/vendor_perl
+    /sbin
+    /bin
     $HOME/scripts
     $HOME/qbin
     $HOME/opt/emacs-git/bin
