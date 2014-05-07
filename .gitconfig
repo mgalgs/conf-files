@@ -25,7 +25,7 @@
 [merge]
 	tool = meld
 [push]
-	default = simple
+	default = current
 [sendemail]
     smtpencryption = tls
     smtpserver = smtp.gmail.com
