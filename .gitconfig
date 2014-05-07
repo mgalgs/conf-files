@@ -26,10 +26,6 @@
 	tool = meld
 [push]
 	default = simple
-# [pager]
-#         log = diff-highlight | less
-#         show = diff-highlight | less
-#         diff = diff-highlight | less
 [sendemail]
     smtpencryption = tls
     smtpserver = smtp.gmail.com
