@@ -15,13 +15,17 @@
 	abbrev = 10
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
-	grjustme = log --graph --full-history --color --decorate --oneline
-	grquick = log --graph --full-history --color --decorate --oneline HEAD~50..
+	grjustme = log --graph --color --decorate --oneline
+	grnotall = log --graph --full-history --color --decorate --oneline
 	grdate = log --graph --full-history --all --color --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d'
+	grquick = log --graph --color --decorate --oneline --full-history   HEAD...HEAD~50
+	grdatequick = log --graph --full-history --color --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d' HEAD...HEAD~50
 	loneline = log --oneline
-	ribbon-set = tag --force _ribbon origin/master
-	ribbon-catchup = log --patch --reverse --topo-order _ribbon..origin/master
+	lonelinedate = log --oneline --decorate --date=relative --pretty=tformat:'%Cgreen%h %Creset(%Cred%an%Cgreen|%Cblue%ad%Creset) %Creset%s %Cgreen%d'
+	ribbon-set = !bash -c 'git tag --force _ribbon $(git config branch.$(git name-rev --name-only HEAD).remote)/$(git symbolic-ref HEAD 2>/dev/null | cut -d "/" -f 3)'
+	ribbon-catchup = !bash -c 'git log --patch --reverse --topo-order _ribbon..$(git config branch.$(git name-rev --name-only HEAD).remote)/$(git symbolic-ref HEAD 2>/dev/null | cut -d "/" -f 3)'
 	toplevel = rev-parse --show-toplevel
+	rmote = remote
 [merge]
 	tool = meld
 [push]
