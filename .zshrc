@@ -87,6 +87,7 @@ compdef _graphicsmagick gm
 meldindexagainstpatch() { meld <(git diff --cached) <(git show $1); }
 # the cat is to prevent accidentally saving rebase-apply/patch:
 meldindexagainstrebasepatch() { meld <(git diff --cached) <(cat $(git rev-parse --show-toplevel)/.git/rebase-apply/patch); }
+meldindexagainstcherrypickhead() { meld <(git diff --cached) <(git show $(cat $(git rev-parse --show-toplevel)/.git/CHERRY_PICK_HEAD)); }
 
 export GREP_OPTIONS='--exclude=*~'
 
