@@ -10,7 +10,7 @@
 	pager = true
 	status = auto
 [core]
-	excludesfile = /home/mgalgs/.gitignore
+	excludesfile = ~/.gitignore
 	pager = less -R -F -X
 	abbrev = 10
 [alias]
