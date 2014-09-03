@@ -114,6 +114,8 @@ setopt no_hup
 setopt no_share_history
 setopt interactivecomments
 setopt extendedglob
+HISTSIZE=50000
+SAVEHIST=50000
 
 ## don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
