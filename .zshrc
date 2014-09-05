@@ -65,6 +65,7 @@ path=(
     $HOME/scripts
     $HOME/qbin
     $HOME/opt/emacs-git/bin
+    $HOME/opt/bin
 )
 
 [[ -r /usr/share/doc/pkgfile/command-not-found.zsh ]] && source /usr/share/doc/pkgfile/command-not-found.zsh
