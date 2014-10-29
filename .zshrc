@@ -141,4 +141,6 @@ select-word-style bash
 
 source ~/scripts/dot_useful_aliases
 
+PATH="`ruby -rubygems -e 'puts Gem.user_dir'`/bin:$PATH"
+
 [[ -r ~/private.zsh ]] && source ~/private.zsh
