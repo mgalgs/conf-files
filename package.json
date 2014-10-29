@@ -1,0 +1,9 @@
+{
+    "name": "mgalgs-conf-files"
+    ,"version": "0.0.1"
+    ,"repository": "https://github.com/mgalgs/conf-files.git"
+    ,"description": "Packages for https://github.com/mgalgs/conf-files"
+    ,"dependencies": {
+        "tmux-cpu": "*"
+    }
+}
