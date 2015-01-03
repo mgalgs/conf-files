@@ -92,8 +92,6 @@ meldindexagainstpatch() { meld <(git diff --cached) <(git show $1); }
 meldindexagainstrebasepatch() { meld <(git diff --cached) <(cat $(git rev-parse --show-toplevel)/.git/rebase-apply/patch); }
 meldindexagainstcherrypickhead() { meld <(git diff --cached) <(git show $(cat $(git rev-parse --show-toplevel)/.git/CHERRY_PICK_HEAD)); }
 
-export GREP_OPTIONS='--exclude=*~'
-
 manopt() { man $1 | sed -n "/^\s\+-\+$2\b/,/^\s*$/p"|sed '$d;'; } 
 
 # colored man pages: :)
