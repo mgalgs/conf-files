@@ -1,5 +1,7 @@
 [[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
 
+[[ -r ~/private-pre.zsh ]] && source ~/private-pre.zsh
+
 # Path to your oh-my-zsh configuration.
 ZSH=$HOME/.oh-my-zsh
 
