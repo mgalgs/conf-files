@@ -26,6 +26,7 @@
 	ribbon-catchup = !bash -c 'git log --patch --reverse --topo-order _ribbon..$(git config branch.$(git name-rev --name-only HEAD).remote)/$(git symbolic-ref HEAD 2>/dev/null | cut -d "/" -f 3)'
 	toplevel = rev-parse --show-toplevel
 	rmote = remote
+	cp = cherry-pick
 [merge]
 	tool = meld
 [push]
