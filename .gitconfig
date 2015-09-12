@@ -39,3 +39,5 @@
 [rebase]
 	autosquash = true
 	autostash = true
+[diff]
+	ignoreSubmodules = all
