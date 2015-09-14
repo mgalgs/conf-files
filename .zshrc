@@ -6,6 +6,7 @@
 ZSH=$HOME/.oh-my-zsh
 
 export TERM=xterm-256color
+#export TERM=screen-256color
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
@@ -56,6 +57,8 @@ plugins=(gitfast brew)
 
 source $ZSH/oh-my-zsh.sh
 
+export GOPATH=$HOME/go
+
 # Customize to your needs...
 path=(
     /usr/local/sbin
@@ -70,6 +73,7 @@ path=(
     $HOME/qbin
     $HOME/opt/emacs-git/bin
     $HOME/opt/bin
+    $GOPATH/bin
 )
 
 [[ -r /usr/share/doc/pkgfile/command-not-found.zsh ]] && source /usr/share/doc/pkgfile/command-not-found.zsh
