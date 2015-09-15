@@ -61,6 +61,7 @@ export GOPATH=$HOME/go
 
 # Customize to your needs...
 path=(
+    /usr/lib/ccache/bin
     /usr/local/sbin
     /usr/local/bin
     /usr/sbin
@@ -75,6 +76,8 @@ path=(
     $HOME/opt/bin
     $GOPATH/bin
 )
+
+export CCACHE_DIR=$HOME/ccache
 
 [[ -r /usr/share/doc/pkgfile/command-not-found.zsh ]] && source /usr/share/doc/pkgfile/command-not-found.zsh
 
