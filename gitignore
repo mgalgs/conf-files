@@ -15,3 +15,5 @@ outgoing/
 .deps
 aclocal.m4
 .DS_Store
+cscope.files
+cscope.out
