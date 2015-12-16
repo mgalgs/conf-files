@@ -83,7 +83,7 @@ export CCACHE_DIR=$HOME/ccache
 
 selfmail()
 {
-    msmtp -a gmail mitch.special@gmail.com <<<"To: mitch.special@gmail.com
+    msmtp -a default mitch.special@gmail.com <<<"To: mitch.special@gmail.com
 From: mitch.special@gmail.com
 Subject: selfmail: $1
 
