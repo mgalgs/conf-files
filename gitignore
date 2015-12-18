@@ -17,3 +17,4 @@ aclocal.m4
 .DS_Store
 cscope.files
 cscope.out
+.dir-locals.el
