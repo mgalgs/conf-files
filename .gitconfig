@@ -43,3 +43,5 @@
 	user = mgalgs
 [include]
         path = ~/.gitconfig_private
+[pull]
+	rebase = true
