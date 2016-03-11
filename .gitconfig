@@ -39,3 +39,7 @@
 [rebase]
 	autosquash = true
 	autostash = true
+[github]
+	user = mgalgs
+[include]
+        path = ~/.gitconfig_private
