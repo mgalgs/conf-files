@@ -6,3 +6,5 @@ GRTAGS
 GTAGS
 ID
 TAGS
+*~
+*.o
