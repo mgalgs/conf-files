@@ -43,5 +43,8 @@
 	user = mgalgs
 [include]
         path = ~/.gitconfig_private
+# use .gitconfig_private for:
+# [github]
+#         oauth-token = <token>
 [pull]
 	rebase = true
