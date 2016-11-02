@@ -151,3 +151,5 @@ source ~/scripts/dot_useful_aliases
 PATH="`ruby -rubygems -e 'puts Gem.user_dir'`/bin:$PATH"
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
+
+source /usr/share/nvm/init-nvm.sh
