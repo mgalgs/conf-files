@@ -114,8 +114,8 @@ export LESS_TERMCAP_us=$'\E[01;32m'
 
 export ALTERNATE_EDITOR='emacs -Q -nw'
 export EDITOR="emacsclient -nw -a vim"
-export LESSOPEN="| src-hilite-lesspipe.sh %s"
-export LESS=' -i -R '
+export LESSOPEN="| /usr/bin/src-hilite-lesspipe.sh %s"
+export LESS=' -i -R -S '
 
 # don't kill (or notify me about) backgrounded processes on exit:
 setopt no_check_jobs
@@ -153,3 +153,5 @@ PATH="`ruby -rubygems -e 'puts Gem.user_dir'`/bin:$PATH"
 [[ -r ~/private.zsh ]] && source ~/private.zsh
 
 source /usr/share/nvm/init-nvm.sh
+
+export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
