@@ -152,6 +152,4 @@ PATH="`ruby -rubygems -e 'puts Gem.user_dir'`/bin:$PATH"
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
 
-source /usr/share/nvm/init-nvm.sh
-
 export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
