@@ -90,7 +90,7 @@ Subject: selfmail: $1
 $2"
 }
 # depends on setopt extendedglob:
-alias croot='cd (../)#.repo(:h)'
+alias croot='cd (../)#.git(:h)'
 
 # fix up some aliases from oh-my-zsh plugins:
 unalias gm
