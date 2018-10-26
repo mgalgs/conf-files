@@ -75,6 +75,7 @@ path=(
     $HOME/opt/emacs-git/bin
     $HOME/opt/bin
     $GOPATH/bin
+    $HOME/.local/bin
 )
 
 export CCACHE_DIR=$HOME/ccache
