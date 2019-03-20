@@ -19,6 +19,7 @@ ZSH_THEME="mgalgs"
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias loadnvm='source $HOME/.oh-my-zsh/plugins/nvm/nvm.plugin.zsh'
+alias k=kubectl
 
 # Set to this to use case-sensitive completion
 # CASE_SENSITIVE="true"
