@@ -96,8 +96,8 @@ $2"
 alias croot='cd (../)#.git(:h)'
 
 # fix up some aliases from oh-my-zsh plugins:
-unalias gm
-compdef _graphicsmagick gm
+#unalias gm
+#compdef _graphicsmagick gm
 
 meldindexagainstpatch() { meld <(git diff --cached) <(git show $1); }
 # the cat is to prevent accidentally saving rebase-apply/patch:
