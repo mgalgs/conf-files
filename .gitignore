@@ -9,3 +9,4 @@ TAGS
 *~
 *.o
 __pycache__
+forge-database.sqlite
