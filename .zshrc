@@ -156,3 +156,5 @@ source ~/scripts/dot_useful_aliases
 [[ -r ~/private.zsh ]] && source ~/private.zsh
 
 export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
