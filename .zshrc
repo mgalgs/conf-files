@@ -78,6 +78,7 @@ path=(
     $HOME/opt/bin
     $GOPATH/bin
     $HOME/.local/bin
+    $HOME/bin
 )
 
 export CCACHE_DIR=$HOME/ccache
