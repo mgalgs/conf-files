@@ -152,7 +152,9 @@ select-word-style bash
 
 source ~/scripts/dot_useful_aliases
 
-# PATH="`ruby -rubygems -e 'puts Gem.user_dir'`/bin:$PATH"
+# Install Ruby Gems to ~/gems
+export GEM_HOME="$HOME/gems"
+export PATH="$HOME/gems/bin:$PATH"
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
 
@@ -163,3 +165,7 @@ export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 [[ -r /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
