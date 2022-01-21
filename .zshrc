@@ -161,8 +161,11 @@ select-word-style bash
 source ~/scripts/dot_useful_aliases
 
 # Install Ruby Gems to ~/gems
-export GEM_HOME="$HOME/gems"
-export PATH="$HOME/gems/bin:$PATH"
+# export GEM_HOME="$HOME/gems"
+# export PATH="$HOME/gems/bin:$PATH"
+# on second thought, just go hog wild (i freaking hate gem)
+# export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
+# export PATH="$PATH:$GEM_HOME/bin"
 
 [[ -r ~/private.zsh ]] && source ~/private.zsh
 
@@ -180,3 +183,6 @@ export NVM_DIR="$HOME/.nvm"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
+export PATH="$PATH:$HOME/.rvm/bin"
