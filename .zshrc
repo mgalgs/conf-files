@@ -70,19 +70,8 @@ source $ZSH/oh-my-zsh.sh
 export GOPATH=$HOME/go
 
 # Customize to your needs...
-path=(
-    /usr/lib/ccache/bin
-    /usr/local/sbin
-    /usr/local/bin
-    /usr/sbin
-    /usr/bin
-    /usr/bin/core_perl
-    /usr/bin/vendor_perl
-    /sbin
-    /bin
+path+=(
     $HOME/scripts
-    $HOME/qbin
-    $HOME/opt/emacs-git/bin
     $HOME/opt/bin
     $GOPATH/bin
     $HOME/.local/bin
