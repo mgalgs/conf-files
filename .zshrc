@@ -126,6 +126,7 @@ setopt no_hup
 setopt no_share_history
 setopt interactivecomments
 setopt extendedglob
+setopt histignorespace
 HISTSIZE=50000
 SAVEHIST=50000
 
