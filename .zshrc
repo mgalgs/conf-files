@@ -76,6 +76,7 @@ path+=(
     $GOPATH/bin
     $HOME/.local/bin
     $HOME/bin
+    $HOME/.pub-cache/bin
 )
 
 export CCACHE_DIR=$HOME/ccache
