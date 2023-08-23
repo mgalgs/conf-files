@@ -1,0 +1,5 @@
+# Plugins database. Each line should be of the form:
+# repo/plugin git_ref
+zsh-users/zsh-completions origin/master
+romkatv/powerlevel10k origin/master
+zsh-users/zsh-autosuggestions origin/master

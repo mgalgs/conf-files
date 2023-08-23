@@ -7,65 +7,25 @@ fi
 
 [[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
 
-[[ -r ~/private-pre.zsh ]] && source ~/private-pre.zsh
+source_if_exists() {
+  [[ -r "$1" ]] && source "$1"
+}
 
-# Path to your oh-my-zsh configuration.
-ZSH=$HOME/.oh-my-zsh
+source_if_exists ~/private-pre.zsh
+
+autoload -Uz compinit
+compinit
+
+# Set CONF_FILES according to your setup
+export ZALGZ_BASE_DIR="$HOME/conf-files/zalgz"
+# Define a debugging level; set to 0 to disable debugging
+export ZALGZ_DEBUG_LEVEL=1
+source "$ZALGZ_BASE_DIR/zalgz.zsh"
+
+zalgz init
 
 export TERM=xterm-256color
 # export TERM=screen-256color
-
-# Set name of the theme to load.
-# Look in ~/.oh-my-zsh/themes/
-# Optionally, if you set this to "random", it'll load a random theme each
-# time that oh-my-zsh is loaded.
-# ZSH_THEME="mgalgs"
-# [[ -e ~/.zsh-theme-setup.sh ]] && source ~/.zsh-theme-setup.sh
-ZSH_THEME="powerlevel10k/powerlevel10k"
-
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-alias loadnvm='source $HOME/.oh-my-zsh/plugins/nvm/nvm.plugin.zsh'
-alias k=kubectl
-
-# Set to this to use case-sensitive completion
-# CASE_SENSITIVE="true"
-
-# Uncomment this to disable bi-weekly auto-update checks
-# DISABLE_AUTO_UPDATE="true"
-
-# Uncomment to change how often before auto-updates occur? (in days)
-# export UPDATE_ZSH_DAYS=13
-
-# Uncomment following line if you want to disable colors in ls
-# DISABLE_LS_COLORS="true"
-
-# Uncomment following line if you want to disable autosetting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment following line if you want to disable command autocorrection
-DISABLE_CORRECTION="true"
-
-# Uncomment following line if you want red dots to be displayed while waiting for completion
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment following line if you want to disable marking untracked files under
-# VCS as dirty. This makes repository status check for large repositories much,
-# much faster.
-DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment following line if you want to  shown in the command execution time stamp 
-# in the history command output. The optional three formats: "mm/dd/yyyy"|"dd.mm.yyyy"|
-# yyyy-mm-dd
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Which plugins would you like to load? (plugins can be found in ~/.oh-my-zsh/plugins/*)
-# Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-plugins=(gitfast brew golang fabric pip npm bower kubectl docker aws helm flutter)
-
-source $ZSH/oh-my-zsh.sh
 
 export GOPATH=$HOME/go
 
@@ -81,29 +41,10 @@ path+=(
 
 export CCACHE_DIR=$HOME/ccache
 
-[[ -r /usr/share/doc/pkgfile/command-not-found.zsh ]] && source /usr/share/doc/pkgfile/command-not-found.zsh
+source_if_exists /usr/share/doc/pkgfile/command-not-found.zsh
 
-selfmail()
-{
-    msmtp -a default mitch.special@gmail.com <<<"To: mitch.special@gmail.com
-From: mitch.special@gmail.com
-Subject: selfmail: $1
-
-$2"
-}
 # depends on setopt extendedglob:
 alias croot='cd (../)#.git(:h)'
-
-# fix up some aliases from oh-my-zsh plugins:
-#unalias gm
-#compdef _graphicsmagick gm
-
-meldindexagainstpatch() { meld <(git diff --cached) <(git show $1); }
-# the cat is to prevent accidentally saving rebase-apply/patch:
-meldindexagainstrebasepatch() { meld <(git diff --cached) <(cat $(git rev-parse --show-toplevel)/.git/rebase-apply/patch); }
-meldindexagainstcherrypickhead() { meld <(git diff --cached) <(git show $(cat $(git rev-parse --show-toplevel)/.git/CHERRY_PICK_HEAD)); }
-
-manopt() { man $1 | sed -n "/^\s\+-\+$2\b/,/^\s*$/p"|sed '$d;'; } 
 
 # colored man pages: :)
 export LESS_TERMCAP_mb=$'\E[01;31m'
@@ -122,16 +63,32 @@ export LESS=' -i -R -S '
 # don't kill (or notify me about) backgrounded processes on exit:
 setopt no_check_jobs
 setopt no_hup
-# override from ~/.oh-my-zsh/lib/history.zsh:
-setopt no_share_history
 setopt interactivecomments
 setopt extendedglob
-setopt histignorespace
-HISTSIZE=50000
-SAVEHIST=50000
 
-## don't complete backup files as executables
+## History file configuration
+HISTFILE="$HOME/.zsh_history"
+HISTSIZE=50000
+SAVEHIST=10000
+setopt histignorespace
+setopt no_share_history
+
+## History command configuration
+setopt extended_history       # record timestamp of command in HISTFILE
+setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
+setopt hist_ignore_dups       # ignore duplicated commands history list
+setopt hist_ignore_space      # ignore commands that start with space
+setopt hist_verify            # show command with history expansion to user before running it
+setopt share_history          # share command history data
+
+# emacs keybindings
+bindkey -e
+
+## Completion settings
+# don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
+zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+zstyle ':completion:*' menu select=5
 
 # remember recent working directories. See zshcontrib(1).
 autoload -Uz chpwd_recent_dirs cdr add-zsh-hook
@@ -151,22 +108,13 @@ select-word-style bash
 
 source ~/scripts/dot_useful_aliases
 
-# Install Ruby Gems to ~/gems
-# export GEM_HOME="$HOME/gems"
-# export PATH="$HOME/gems/bin:$PATH"
-# on second thought, just go hog wild (i freaking hate gem)
-# export GEM_HOME="$(ruby -e 'puts Gem.user_dir')"
-# export PATH="$PATH:$GEM_HOME/bin"
-
-[[ -r ~/private.zsh ]] && source ~/private.zsh
+source_if_exists ~/private.zsh
 
 export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 
-[[ -r /usr/share/fzf/key-bindings.zsh ]] && source /usr/share/fzf/key-bindings.zsh
-[[ -r /usr/share/fzf/completion.zsh ]] && source /usr/share/fzf/completion.zsh
-[[ -r /usr/share/nvm/init-nvm.sh ]] && source /usr/share/nvm/init-nvm.sh
-
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+source_if_exists /usr/share/fzf/key-bindings.zsh
+source_if_exists /usr/share/fzf/completion.zsh
+source_if_exists /usr/share/nvm/init-nvm.sh
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -175,21 +123,7 @@ export NVM_DIR="$HOME/.nvm"
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/usr/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "/usr/etc/profile.d/conda.sh" ]; then
-        . "/usr/etc/profile.d/conda.sh"
-    else
-        export PATH="/usr/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-
+# zsh-syntax-highlighting has to be sourced last, so rather than going
+# through zalgz we just install it with the system package manager and
+# source it here.
+source_if_exists /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
