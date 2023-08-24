@@ -7,7 +7,7 @@
 ZALGZ_PLUGIN_DIR="$ZALGZ_BASE_DIR/plugins"
 ZALGZ_PLUGIN_DB="$ZALGZ_BASE_DIR/plugins.txt"
 # Define a debugging level; set to 0 to disable debugging
-ZALGZ_DEBUG_LEVEL=${ZALGZ_DEBUG_LEVEL:-1}
+ZALGZ_DEBUG_LEVEL=${ZALGZ_DEBUG_LEVEL:-0}
 
 # Debug log function
 _zalgz_debug() {
