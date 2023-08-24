@@ -106,7 +106,14 @@ bindkey '^r' history-incremental-pattern-search-backward
 autoload -U select-word-style
 select-word-style bash
 
-source ~/scripts/dot_useful_aliases
+alias k=kubectl
+alias emc="emacsclient -n -a emacs"
+alias gsus='git status'
+alias grquickhead="git grquick | head"
+alias vm='emacsclient -nw -a em'
+alias E="SUDO_EDITOR=\"emacsclient -nw\" sudoedit"
+alias S="sudo pacman -S "
+type open >/dev/null || alias open="xdg-open"
 
 source_if_exists ~/private.zsh
 
