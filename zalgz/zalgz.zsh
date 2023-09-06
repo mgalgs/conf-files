@@ -95,7 +95,7 @@ _zalgz_list_plugins() {
     while read -r plugin git_ref; do
         [[ "$plugin" == \#* ]] && continue
         echo "$plugin $git_ref"
-    done < "$ZALGZ_PLUGIN_DIR"
+    done < "$ZALGZ_PLUGIN_DB"
 }
 
 _zalgz_try() {
