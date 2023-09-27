@@ -3,3 +3,4 @@
 zsh-users/zsh-completions origin/master
 romkatv/powerlevel10k origin/master
 zsh-users/zsh-autosuggestions origin/master
+mgalgs/zsh-take origin/master
