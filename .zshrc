@@ -19,7 +19,7 @@ compinit
 # Set CONF_FILES according to your setup
 export ZALGZ_BASE_DIR="$HOME/conf-files/zalgz"
 # Define a debugging level; set to 0 to disable debugging
-export ZALGZ_DEBUG_LEVEL=1
+export ZALGZ_DEBUG_LEVEL=0
 source "$ZALGZ_BASE_DIR/zalgz.zsh"
 
 zalgz init
