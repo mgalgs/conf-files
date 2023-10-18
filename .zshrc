@@ -116,6 +116,7 @@ alias grquickhead="git grquick | head"
 alias vm='emacsclient -nw -a em'
 alias E="SUDO_EDITOR=\"emacsclient -nw\" sudoedit"
 alias S="sudo pacman -S "
+alias ls="ls --color=auto"
 type open >/dev/null || alias open="xdg-open"
 
 source_if_exists ~/private.zsh
