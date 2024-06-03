@@ -125,6 +125,33 @@ function lsenoobs() {
     lsd --color=always -lt $* | head
 }
 
+# TODO: pull this kasa stuff out to a plugin (with lazily-initialized venv)
+# and publish?
+
+alias kasa="~/src/kasa-env/venv/bin/python ~/src/kasa-env/venv/bin/kasa"
+
+function kasa-off() {
+    kasa --host $1 --type plug off
+}
+
+function kasa-on() {
+    kasa --host $1 --type plug on
+}
+
+# Function to perform completion by parsing /etc/hosts for kasa- prefixed hosts
+_kasa_completion() {
+    local -a hostnames
+    # Parse /etc/hosts and extract hostnames starting with kasa-
+    hostnames=($(awk '/kasa-/{print $2}' /etc/hosts | sort -u))
+
+    # Define how the completion works, explicitly quoting the array expansion
+    _describe 'hostname' hostnames -V hostnames
+}
+
+# Register the completion function for kasa-on and kasa-off
+compdef _kasa_completion kasa-on
+compdef _kasa_completion kasa-off
+
 source_if_exists ~/private.zsh
 
 export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
