@@ -116,7 +116,14 @@ alias vm='emacsclient -nw -a em'
 alias E="SUDO_EDITOR=\"emacsclient -nw\" sudoedit"
 alias S="sudo pacman -S "
 alias ls="ls --color=auto"
+alias lse=lsd
+alias lsel="lsd -l"
+alias lselt="lsd -lt"
 type open >/dev/null || alias open="xdg-open"
+
+function lsenoobs() {
+    lsd --color=always -lt $* | head
+}
 
 source_if_exists ~/private.zsh
 
