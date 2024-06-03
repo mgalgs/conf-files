@@ -1,3 +1,4 @@
+# Fix for tramp
 [[ $TERM == "dumb" ]] && unsetopt zle && PS1='$ ' && return
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
