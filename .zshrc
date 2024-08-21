@@ -118,6 +118,7 @@ alias S="sudo pacman -S "
 alias ls="ls --color=auto"
 alias lse=lsd
 alias lsel="lsd -l"
+alias ll="lsd -l"
 alias lselt="lsd -lt"
 type open >/dev/null || alias open="xdg-open"
 
