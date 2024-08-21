@@ -16,6 +16,7 @@ source_if_exists ~/private-pre.zsh
 
 autoload -Uz compinit
 compinit
+zmodload zsh/complist # needed for colored completion menu
 
 # Set CONF_FILES according to your setup
 export ZALGZ_BASE_DIR="$HOME/conf-files/zalgz"
@@ -86,8 +87,28 @@ bindkey -e
 ## Completion settings
 # don't complete backup files as executables
 zstyle ':completion:*:complete:-command-::commands' ignored-patterns '*\~'
-zstyle ':completion:*' matcher-list '' 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
-zstyle ':completion:*' menu select=5
+# Use menu for completion
+zstyle ':completion:*' menu select
+# Completion matching
+#  - 'm:{a-zA-Z}={A-Za-z}' :: Case insensitivity
+#  - 'r:|[._-]=* r:|=*' :: Ignore punctuation (e.g. filetxt matches file.txt)
+#  - 'l:|=* r:|=*' :: Match anywhere in the word
+zstyle ':completion:*' matcher-list \
+       'm:{a-zA-Z}={A-Za-z}' \
+       'r:|[._-]=* r:|=*' \
+       'l:|=* r:|=*'
+# Enable colors for menu selection
+#  - "di=34" :: Directory color (blue)
+#  - "fi=0" :: Regular file color (default color)
+#  - "mi=48;5;226" :: Highlight for currently selected item (black on yellow)
+#  - "sl=30;47" :: Selection line (black on white)
+#  - "hl=0;47" :: Highlighted completion matches (default on white)
+zstyle ':completion:*:default' list-colors \
+       "di=34" \
+       "fi=0" \
+       "mi=48;5;226" \
+       "sl=30;47" \
+       "hl=0;47"
 
 # kubectl completion
 [[ "$commands[kubectl]" ]] && source <(kubectl completion zsh)
