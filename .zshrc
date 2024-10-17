@@ -175,6 +175,9 @@ _kasa_completion() {
 compdef _kasa_completion kasa-on
 compdef _kasa_completion kasa-off
 
+## fvm completion scripts setup. Remove the following line to uninstall
+[[ -f "$HOME/.dart-cli-completion/zsh-config.zsh" ]] && . "$HOME/.dart-cli-completion/zsh-config.zsh" || true
+
 source_if_exists ~/private.zsh
 
 export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
