@@ -184,6 +184,8 @@ export ANDROID_EMULATOR_USE_SYSTEM_LIBS=1
 
 source_if_exists /usr/share/fzf/key-bindings.zsh
 source_if_exists /usr/share/fzf/completion.zsh
+source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
+source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/share/nvm/init-nvm.sh
 
 export NVM_DIR="$HOME/.nvm"
