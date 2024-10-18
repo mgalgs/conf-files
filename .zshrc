@@ -138,7 +138,7 @@ alias E="SUDO_EDITOR=\"emacsclient -nw\" sudoedit"
 alias S="sudo pacman -S "
 alias Sy="sudo pacman -Sy "
 alias ls="ls --color=auto"
-alias lse=lsd
+alias lse="lsd -l"
 alias lsel="lsd -l"
 alias ll="lsd -l"
 alias lselt="lsd -lt"
