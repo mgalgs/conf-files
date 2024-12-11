@@ -186,6 +186,8 @@ source_if_exists /usr/share/fzf/key-bindings.zsh
 source_if_exists /usr/share/fzf/completion.zsh
 source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
 source_if_exists /usr/local/opt/fzf/shell/completion.zsh
+source_if_exists /usr/share/doc/fzf/examples/key-bindings.zsh
+source_if_exists /usr/share/doc/fzf/examples/completion.zsh
 source_if_exists /usr/share/nvm/init-nvm.sh
 
 export NVM_DIR="$HOME/.nvm"
