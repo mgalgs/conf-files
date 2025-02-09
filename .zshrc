@@ -136,6 +136,7 @@ alias grquickhead="git grquick | head"
 alias vm='emacsclient -nw -a em'
 alias E="SUDO_EDITOR=\"emacsclient -nw\" sudoedit"
 alias S="sudo pacman -S "
+alias R="sudo pacman -R "
 alias Sy="sudo pacman -Sy "
 alias ls="ls --color=auto"
 alias lse="lsd -l"
