@@ -145,6 +145,7 @@ alias ll="lsd -l"
 alias lselt="lsd -lt"
 type open >/dev/null || alias open="xdg-open"
 alias ybat="bat -lyaml"
+alias jbat="bat -ljson"
 
 function lsenoobs() {
     lsd --color=always -lt $* | head
