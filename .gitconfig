@@ -43,3 +43,11 @@
 	user = mgalgs
 [pull]
 	rebase = true
+[tag]
+        sort = version:refname
+[branch]
+        sort = -committerdate
+[diff]
+        algorithm = histogram
+        colorMoved = plain
+        renames = true
