@@ -1,6 +1,15 @@
 [user]
 	email = mitch.special@gmail.com
 	name = Mitchel Humpherys
+        signingkey = ~/.ssh/id_rsa.pub
+[commit]
+        gpgsign = true
+[tag]
+        gpgsign = true
+[gpg]
+        format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
 [push]
 	default = simple
 [color]
