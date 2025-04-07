@@ -199,6 +199,7 @@ export NVM_DIR="$HOME/.nvm"
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+# (installed via zalgz. update with: `zalgz update romkatv/powerlevel10k`)
 
 # zsh-syntax-highlighting has to be sourced last, so rather than going
 # through zalgz we just install it with the system package manager and
