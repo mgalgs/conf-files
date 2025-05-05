@@ -151,10 +151,7 @@ function lsenoobs() {
     lsd --color=always -lt $* | head
 }
 
-# TODO: pull this kasa stuff out to a plugin (with lazily-initialized venv)
-# and publish?
-
-alias kasa="~/src/kasa-env/venv/bin/python ~/src/kasa-env/venv/bin/kasa"
+alias kasa="uvx --from python-kasa kasa"
 
 function kasa-off() {
     kasa --host $1 --type plug off
