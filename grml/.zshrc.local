@@ -1,0 +1,51 @@
+source_if_exists() {
+  [[ -r "$1" ]] && source "$1"
+}
+
+### Moar plugins and whatnot
+
+# fzf (different paths on different distros)
+source_if_exists /usr/share/fzf/key-bindings.zsh
+source_if_exists /usr/share/fzf/completion.zsh
+source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
+source_if_exists /usr/local/opt/fzf/shell/completion.zsh
+source_if_exists /usr/share/doc/fzf/examples/key-bindings.zsh
+source_if_exists /usr/share/doc/fzf/examples/completion.zsh
+
+### Configure prompt ###
+
+# Use the following to pick colors:
+# for i in {0..255}; do print -Pn "%K{$i}  %k%F{$i}${(l:3::0:)i}%f " ${${(M)$((i%8)):#7}:+$'\n'}; done
+
+# Large prompt with timestamps, etc
+init_large_prompt() {
+    prompt grml-large
+
+    # Change prompt colors
+    zstyle ':prompt:grml-large:*:items:user' pre '%F{063}'
+    zstyle ':prompt:grml-large:*:items:at' pre '%F{119}'
+    zstyle ':prompt:grml-large:*:items:host' pre '%F{043}'
+    zstyle ':prompt:grml-large:*:items:path' pre '%F{blue}'
+    zstyle ':prompt:grml-large:*:items:path' post '%f'
+}
+
+init_small_prompt() {
+    prompt grml
+
+    # Change prompt colors
+    zstyle ':prompt:grml:*:items:user' pre '%F{063}'
+    zstyle ':prompt:grml:*:items:at' pre '%F{119}'
+    zstyle ':prompt:grml:*:items:host' pre '%F{043}'
+    zstyle ':prompt:grml:*:items:path' pre '%F{blue}'
+    zstyle ':prompt:grml:*:items:path' post '%f'
+}
+
+# Uncomment exactly one of these
+# init_large_prompt
+init_small_prompt
+
+### Handy stuff ###
+bindkey '^U' backward-kill-line  # Better than the kill-whole-line
+
+# to avoid having to add `--connect qemu:///system` to all virsh commands
+export LIBVIRT_DEFAULT_URI='qemu:///system'
