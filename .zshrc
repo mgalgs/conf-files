@@ -151,7 +151,7 @@ function lsenoobs() {
     lsd --color=always -lt $* | head
 }
 
-alias kasa="uvx --from python-kasa kasa"
+alias kasa="uvx --python 3.13 --from python-kasa@0.10.2 kasa"
 
 function kasa-off() {
     kasa --host $1 --type plug off
