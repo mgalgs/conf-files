@@ -210,3 +210,16 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# uv completion (fix filename completion)
+# https://github.com/astral-sh/uv/issues/8432#issuecomment-2453494736
+eval "$(uv generate-shell-completion zsh)"
+
+_uv_run_mod() {
+    if [[ "$words[2]" == "run" && "$words[CURRENT]" != -* ]]; then
+        _arguments '*:filename:_files'
+    else
+        _uv "$@"
+    fi
+}
+compdef _uv_run_mod uv
