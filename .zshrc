@@ -71,8 +71,7 @@ setopt extendedglob
 ## History file configuration
 HISTFILE="$HOME/.zsh_history"
 HISTSIZE=50000
-SAVEHIST=10000
-setopt histignorespace
+SAVEHIST=50000
 setopt no_share_history
 setopt extended_history       # record timestamp of command in HISTFILE
 setopt hist_expire_dups_first # delete duplicates first when HISTFILE size exceeds HISTSIZE
