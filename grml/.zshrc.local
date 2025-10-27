@@ -47,5 +47,15 @@ init_small_prompt
 ### Handy stuff ###
 bindkey '^U' backward-kill-line  # Better than the kill-whole-line
 
+# allow "-" and "_" to split words during backward kill
+function my-backward-kill-word () {
+    local WORDCHARS="${WORDCHARS//[-_]/}"
+    WORDCHARS="${WORDCHARS:s@_@}"
+    # zle backward-word
+    zle backward-kill-word
+}
+zle -N my-backward-kill-word
+bindkey '^W' my-backward-kill-word
+
 # to avoid having to add `--connect qemu:///system` to all virsh commands
 export LIBVIRT_DEFAULT_URI='qemu:///system'
