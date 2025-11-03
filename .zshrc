@@ -222,3 +222,14 @@ _uv_run_mod() {
     fi
 }
 compdef _uv_run_mod uv
+
+# bun
+if [[ -d "$HOME/.bun" ]]; then
+    # completions
+    [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+    # bun
+    export BUN_INSTALL="$HOME/.bun"
+    export PATH="$BUN_INSTALL/bin:$PATH"
+fi
+# bun end
