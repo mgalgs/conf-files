@@ -237,3 +237,5 @@ if [[ -d "$HOME/.bun" ]]; then
     export PATH="$BUN_INSTALL/bin:$PATH"
 fi
 # bun end
+
+type helm >/dev/null && source <(helm completion zsh)
