@@ -58,7 +58,7 @@ export LESS_TERMCAP_ue=$'\E[0m'
 export LESS_TERMCAP_us=$'\E[01;32m'
 
 export ALTERNATE_EDITOR='emacs -Q -nw'
-export EDITOR="emacsclient -nw -a vim"
+export EDITOR="$HOME/.emacs.d/bin/editor"
 export LESSOPEN="| /usr/bin/src-hilite-lesspipe.sh %s"
 export LESS=' -i -R -S '
 
