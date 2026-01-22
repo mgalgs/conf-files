@@ -1,6 +1,3 @@
-[include]
-        # delta themes
-        path = ~/conf-files/themes.gitconfig
 [user]
 	email = mitch.special@gmail.com
 	name = Mitchel Humpherys
@@ -23,8 +20,7 @@
 	status = auto
 [core]
 	excludesfile = ~/.gitignore
-	#pager = less -R -F -X
-        pager = delta
+	pager = less -R -F -X
 	abbrev = 10
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
@@ -64,15 +60,3 @@
         algorithm = histogram
         colorMoved = plain
         renames = true
-[interactive]
-        diffFilter = delta --color-only
-[delta]
-        navigate = true
-        side-by-side = true
-        # theme from ~/conf-files/themes.gitconfig
-        features = weeping-willow
-        # other themes on the shortlist:
-        # features = chameleon
-        # features = mellow-barbet
-        # features = woolly-mammoth
-        # features = mantis-shrimp
