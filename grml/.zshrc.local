@@ -68,3 +68,7 @@ export LIBVIRT_DEFAULT_URI='qemu:///system'
 if [[ -r "$HOME/src/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
     source "$HOME/src/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
 fi
+
+if [[ -r "$HOME/.emacs.d/bin/editor" ]]; then
+    export EDITOR="$HOME/.emacs.d/bin/editor"
+fi
