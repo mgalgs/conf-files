@@ -64,3 +64,7 @@ bindkey '^W' my-backward-kill-word
 
 # to avoid having to add `--connect qemu:///system` to all virsh commands
 export LIBVIRT_DEFAULT_URI='qemu:///system'
+
+if [[ -r "$HOME/src/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh" ]]; then
+    source "$HOME/src/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh"
+fi
