@@ -187,11 +187,16 @@ source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
 source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/share/doc/fzf/examples/key-bindings.zsh
 source_if_exists /usr/share/doc/fzf/examples/completion.zsh
-source_if_exists /usr/share/nvm/init-nvm.sh
-
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+_nvm_lazy_load() {
+  unfunction nvm node npm npx _nvm_lazy_load 2>/dev/null
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+}
+nvm() { _nvm_lazy_load; nvm "$@" }
+node() { _nvm_lazy_load; node "$@" }
+npm() { _nvm_lazy_load; npm "$@" }
+npx() { _nvm_lazy_load; npx "$@" }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
