@@ -188,15 +188,12 @@ source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/share/doc/fzf/examples/key-bindings.zsh
 source_if_exists /usr/share/doc/fzf/examples/completion.zsh
 export NVM_DIR="$HOME/.nvm"
-_nvm_lazy_load() {
-  unfunction nvm node npm npx _nvm_lazy_load 2>/dev/null
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-nvm() { _nvm_lazy_load; nvm "$@" }
-node() { _nvm_lazy_load; node "$@" }
-npm() { _nvm_lazy_load; npm "$@" }
-npx() { _nvm_lazy_load; npx "$@" }
+# Lazy-load nvm: each wrapper is self-contained so it works even when
+# captured by shell-snapshot tools that skip underscore-prefixed functions.
+nvm() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; nvm "$@" }
+node() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command node "$@" }
+npm() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command npm "$@" }
+npx() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command npx "$@" }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
