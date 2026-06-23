@@ -39,6 +39,7 @@ path+=(
     $HOME/.local/bin
     $HOME/bin
     $HOME/.pub-cache/bin
+    $HOME/.claude/scripts
 )
 
 export CCACHE_DIR=$HOME/ccache
