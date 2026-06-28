@@ -9,7 +9,7 @@
 set -euo pipefail
 
 WINDOW_ID=$(tmux display-message -p '#{window_id}')
-MODEL="${TMUX_RENAME_MODEL:-google/gemini-2.5-flash-lite}"
+MODEL="${TMUX_RENAME_MODEL:-google/gemini-2.5-flash}"
 LOG="/tmp/tmux-window-rename-ai.log"
 
 main() {
@@ -18,29 +18,43 @@ main() {
 
     for pane_id in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}'); do
         pane_num=$((pane_num + 1))
-        local cmd path content non_blank head_lines tail_lines
+        local cmd path content visible
         cmd=$(tmux display-message -t "$pane_id" -p '#{pane_current_command}')
         path=$(tmux display-message -t "$pane_id" -p '#{pane_current_path}')
         content=$(tmux capture-pane -p -t "$pane_id" 2>/dev/null || true)
-        non_blank=$(echo "$content" | grep -v '^[[:space:]]*$' || true)
-        head_lines=$(echo "$non_blank" | head -15)
-        tail_lines=$(echo "$non_blank" | tail -15)
+        # capture-pane returns only the visible screen, so send all non-blank
+        # lines (most recent last), capped to avoid flooding very tall panes.
+        visible=$(echo "$content" | grep -v '^[[:space:]]*$' | tail -50 || true)
 
         context+="=== Pane ${pane_num} ===
 Command: ${cmd}
 Directory: ${path}
---- Top of visible output ---
-${head_lines}
---- Bottom of visible output ---
-${tail_lines}
+--- Visible output (most recent last) ---
+${visible}
 
 "
     done
 
     local prompt
-    prompt="Based on the following tmux pane context, generate a SHORT (1-2 word) descriptive name for this tmux window. The name should be a lowercase, hyphen-separated slug that describes what the user is DOING, not where they are. Focus on the task/activity visible in the pane content (e.g. what's being edited, debugged, built, reviewed), not the repo name or directory. Examples: auth-fix, deploy, api-debug, log-review, db-migrate, tmux-rename, htop.
+    prompt="Generate a SPECIFIC, descriptive name for this tmux window based on the pane context below.
 
-Respond with ONLY the window name slug, nothing else. No quotes, no explanation.
+The name must identify the concrete thing being worked on RIGHT NOW — the actual file, feature, service, error, command, or topic visible in the panes. Be specific, not categorical: name the instance, not the genre of activity.
+
+Rules:
+- lowercase, hyphen-separated slug, 2-4 tokens, max ~28 chars
+- Anchor the name to the most distinctive concrete noun on screen: a filename (drop the extension), a function or feature, a service, an error message, a host. Specific beats short.
+- Combine the subject with the activity when both are clear (subject first): 'openrouter-timeout-fix', 'tmux-rename-prompt', 'wireguard-tunnel-logs', 'migrations-rebase'.
+- Using the repo/dir/filename is GOOD when it's the distinctive signal — just don't stop at a bare cwd; say what is being done to it.
+- If a pane is only a running TUI with no task context (htop, less, a plain shell), name it after that tool.
+
+Bad (too generic) -> Good (specific):
+  api-debug    -> openrouter-timeout
+  log-review   -> wireguard-tunnel-logs
+  db-migrate   -> orders-migration-rebase
+  script-edit  -> tmux-rename-prompt
+  deploy       -> apps-vm-deploy
+
+Respond with ONLY the slug, nothing else. No quotes, no explanation.
 
 ${context}"
 
@@ -53,7 +67,8 @@ ${context}"
         -H "Content-Type: application/json" \
         -d "{
             \"model\": \"${MODEL}\",
-            \"max_tokens\": 20,
+            \"max_tokens\": 32,
+            \"reasoning\": {\"enabled\": false},
             \"messages\": [{\"role\": \"user\", \"content\": ${json_prompt}}]
         }")
 
@@ -64,7 +79,7 @@ ${context}"
         return 1
     fi
     name=$(printf '%s' "$raw_name" \
-        | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | sed 's/^-//;s/-$//' | head -c 30)
+        | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | head -c 30 | sed 's/^-//;s/-$//')
 
     if [[ -n "$name" ]]; then
         tmux rename-window -t "$WINDOW_ID" "$name"
