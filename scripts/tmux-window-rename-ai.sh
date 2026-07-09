@@ -6,9 +6,22 @@
 #
 # For a pane running Claude Code (`claude`), the visible TUI is only a sliver
 # of the session, so instead of capturing the screen we read that session's
-# transcript (~/.claude/projects/<encoded-cwd>/<newest>.jsonl) and summarize it
-# from its AI title, first user message, and most recent turns. All other panes
-# still use their visible on-screen output.
+# transcript (under ~/.claude/projects/<encoded-cwd>/) and summarize it from its
+# AI title, first user message, and most recent turns. Several sessions can
+# share one project dir, so we don't guess by mtime — we look THIS pane up in a
+# pane->transcript map that an external producer must populate.
+#
+# TRANSCRIPT MAP (optional producer, graceful fallback): to name a Claude pane
+# from its session transcript rather than the visible screen, something must
+# record each Claude session's transcript path, keyed by tmux pane, as
+#     /tmp/claude-tmux-panes-<uid>/<pane>   (one line: the transcript path)
+# where <uid> is `id -u` and <pane> is the tmux pane id with every
+# non-alphanumeric char mapped to '_' (e.g. %73 -> _73). That producer is a
+# Claude Code SessionStart hook; it is NOT shipped in this repo — it lives as
+# tmux-map-claude-session.sh in the claude-config repo, wired into that repo's
+# settings.json. Without it, Claude panes (like all non-Claude panes) fall back
+# to visible on-screen capture — naming still works, just less precisely when
+# concurrent sessions share one cwd.
 #
 # Configuration (environment variables):
 #   TMUX_RENAME_API_URL  Chat completions endpoint.
@@ -74,22 +87,32 @@ transcript_context() {
 main() {
     local context=""
     local pane_num=0
+    local map_root
+    map_root="/tmp/claude-tmux-panes-$(id -u)"
 
     for pane_id in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}'); do
         pane_num=$((pane_num + 1))
-        local cmd path enc proj transcript sess content visible
+        local cmd path enc proj key mapped transcript sess content visible
         cmd=$(tmux display-message -t "$pane_id" -p '#{pane_current_command}')
         path=$(tmux display-message -t "$pane_id" -p '#{pane_current_path}')
 
         # A pane running Claude Code is summarized from its session transcript
-        # rather than the visible TUI tail. Claude Code encodes the launch cwd
-        # by replacing every non-alphanumeric char with '-'; the newest .jsonl
-        # in that project dir is the live session.
+        # rather than the visible TUI tail. The SessionStart hook recorded this
+        # pane's transcript path keyed by pane id; trust it only if the file
+        # still exists and lives under this pane's own project dir (Claude Code
+        # encodes the launch cwd by mapping every non-alphanumeric char to '-'),
+        # which rejects a stale mapping left by a since-closed pane.
         if [[ "$cmd" == "claude" ]]; then
             enc=$(printf '%s' "$path" | sed 's/[^a-zA-Z0-9]/-/g')
             proj="$HOME/.claude/projects/$enc"
-            transcript=$(find "$proj" -maxdepth 1 -type f -name '*.jsonl' \
-                -printf '%T@\t%p\n' 2>/dev/null | sort -rn | head -1 | cut -f2-)
+            key=$(printf '%s' "$pane_id" | tr -c 'a-zA-Z0-9' '_')
+            transcript=""
+            if [[ -f "$map_root/$key" ]]; then
+                mapped=$(<"$map_root/$key")
+                if [[ -n "$mapped" && -f "$mapped" && "$mapped" == "$proj/"* ]]; then
+                    transcript="$mapped"
+                fi
+            fi
             if [[ -n "$transcript" ]]; then
                 sess=$(transcript_context "$transcript")
                 if [[ -n "${sess//[[:space:]]/}" ]]; then
@@ -103,11 +126,12 @@ ${sess}
             fi
         fi
 
-        # Fallback: non-Claude pane, or transcript unavailable. capture-pane
-        # returns only the visible screen, so send all non-blank lines (most
-        # recent last), capped to avoid flooding very tall panes.
+        # Fallback: non-Claude pane, or no session mapping (hook not installed,
+        # or a session that predates it). capture-pane returns only the visible
+        # screen, so send all non-blank lines (most recent last), capped to
+        # avoid flooding very tall panes.
         content=$(tmux capture-pane -p -t "$pane_id" 2>/dev/null || true)
-        visible=$(echo "$content" | grep -v '^[[:space:]]*$' | tail -50 || true)
+        visible=$(printf '%s\n' "$content" | grep -v '^[[:space:]]*$' | tail -50 || true)
         context+="=== Pane ${pane_num} ===
 Command: ${cmd}
 Directory: ${path}
