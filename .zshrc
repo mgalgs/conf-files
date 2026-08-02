@@ -188,13 +188,18 @@ source_if_exists /usr/local/opt/fzf/shell/key-bindings.zsh
 source_if_exists /usr/local/opt/fzf/shell/completion.zsh
 source_if_exists /usr/share/doc/fzf/examples/key-bindings.zsh
 source_if_exists /usr/share/doc/fzf/examples/completion.zsh
-export NVM_DIR="$HOME/.nvm"
-# Lazy-load nvm: each wrapper is self-contained so it works even when
-# captured by shell-snapshot tools that skip underscore-prefixed functions.
-nvm() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; nvm "$@" }
-node() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command node "$@" }
-npm() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command npm "$@" }
-npx() { unfunction nvm node npm npx 2>/dev/null; . "$NVM_DIR/nvm.sh"; command npx "$@" }
+# NVM_DIR and the PATH entry live in .zshenv, so node/npm/npx are real
+# binaries in EVERY shell — including the non-interactive ones that run
+# bash scripts, which cannot call a zsh function. There used to be
+# lazy-load stubs for node/npm/npx here; they only fired when you typed
+# those names, so `scripts/smoke.sh` calling `npm ci` never loaded nvm
+# and died with "npm: command not found".
+#
+# Only `nvm` itself still needs the stub: switching versions requires
+# the function, and sourcing nvm.sh on every shell start is the cost
+# this lazy-load exists to avoid. It is self-contained so it survives
+# shell-snapshot tools that skip underscore-prefixed functions.
+nvm() { unfunction nvm 2>/dev/null; . "$NVM_DIR/nvm.sh"; nvm "$@" }
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
