@@ -8,5 +8,5 @@ fi
 nohup /usr/bin/ghostty \
       --gtk-single-instance=true \
       --font-size=14 \
-      -e tmux attach-session -t "$1" \
+      -e tmux new-session -A -s "$1" \
       </dev/null >/dev/null 2>&1 &
