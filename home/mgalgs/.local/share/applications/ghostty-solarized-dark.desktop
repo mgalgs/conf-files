@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Solarized Dark)
+Comment=Ghostty terminal with Solarized Dark theme
+Exec=ghostty --theme="Solarized Dark Patched"
+Icon=ghostty-solarized-dark
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;solarized;dark;

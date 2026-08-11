@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (TokyoNight)
+Comment=Ghostty terminal with TokyoNight theme
+Exec=ghostty --theme=TokyoNight
+Icon=ghostty-tokyonight
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;tokyonight;

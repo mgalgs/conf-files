@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Nord)
+Comment=Ghostty terminal with Nord theme
+Exec=ghostty --theme=Nord
+Icon=ghostty-nord
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;nord;

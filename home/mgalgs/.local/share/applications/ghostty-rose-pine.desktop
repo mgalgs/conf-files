@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Rose Pine)
+Comment=Ghostty terminal with Rose Pine theme
+Exec=ghostty --theme="Rose Pine"
+Icon=ghostty-rose-pine
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;rose;pine;

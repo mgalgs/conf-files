@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Dracula)
+Comment=Ghostty terminal with Dracula theme
+Exec=ghostty --theme=Dracula
+Icon=ghostty-dracula
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;dracula;

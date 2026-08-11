@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Gruvbox Dark)
+Comment=Ghostty terminal with Gruvbox Dark theme
+Exec=ghostty --theme="Gruvbox Dark"
+Icon=ghostty-gruvbox-dark
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;gruvbox;dark;

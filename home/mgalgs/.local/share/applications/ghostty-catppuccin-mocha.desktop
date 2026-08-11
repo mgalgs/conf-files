@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=Ghostty (Catppuccin Mocha)
+Comment=Ghostty terminal with Catppuccin Mocha theme
+Exec=ghostty --theme="Catppuccin Mocha"
+Icon=ghostty-catppuccin-mocha
+Terminal=false
+Categories=System;TerminalEmulator;
+Keywords=terminal;shell;catppuccin;mocha;
