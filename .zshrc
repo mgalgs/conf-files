@@ -34,6 +34,7 @@ export GOPATH=$HOME/go
 # Customize to your needs...
 path+=(
     $HOME/scripts
+    $HOME/conf-files/scripts
     $HOME/opt/bin
     $GOPATH/bin
     $HOME/.local/bin
