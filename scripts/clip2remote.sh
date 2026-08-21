@@ -5,27 +5,52 @@
 #
 # Purpose: paste screenshots into a Claude Code (or editor) session that runs
 # on a remote host over SSH. Image clipboard data does not travel through SSH,
-# but a file path does. So: this runs on your LAPTOP, lands the image on the
-# remote filesystem, and hands you the remote path. Text paste works over SSH,
-# so you press Ctrl+V in the remote session and the path appears.
+# but a file path does. So: this runs where the clipboard is, lands the image
+# on the remote filesystem, and hands you the remote path. Text paste works
+# over SSH, so you press Ctrl+V in the remote session and the path appears.
 #
 # Usage:
-#   clip2remote.sh [[user@]host[:/remote/dir]]
+#   clip2remote.sh [--print-only] [[user@]host[:/remote/dir]]
 #
-#   host        SSH target. Default: bitforge
-#   /remote/dir Destination directory on the host. Default: /tmp
+#   --print-only  Do not touch the local clipboard; just print the remote
+#                 path on stdout. The GNOME clip2remote extension uses this
+#                 and sets the clipboard itself.
+#   host          SSH target. Default: bitforge
+#   /remote/dir   Destination directory on the host. Default: /tmp
 #
 # Examples:
 #   clip2remote.sh                       # -> bitforge:/tmp/clip-<stamp>.png
-#   clip2remote.sh bitforge:/home/mgalgs/shots
-#   clip2remote.sh me@otherhost
+#   clip2remote.sh bitforge.home.lan:/home/mgalgs/shots
+#   clip2remote.sh --print-only omie.home.lan
 #
 # Requires (local): openssh (scp), and one clipboard tool for your session:
-#   Wayland -> wl-clipboard (wl-paste / wl-copy)
+#   Wayland -> wl-clipboard (wl-paste, plus wl-copy unless --print-only)
 #   X11     -> xclip
 set -euo pipefail
 
-target="${1:-bitforge}"
+print_only=0
+positional=()
+while [ $# -gt 0 ]; do
+    case "$1" in
+    -p | --print-only) print_only=1 ;;
+    --)
+        shift
+        while [ $# -gt 0 ]; do
+            positional+=("$1")
+            shift
+        done
+        break
+        ;;
+    -*)
+        echo "clip2remote: unknown option '$1'" >&2
+        exit 2
+        ;;
+    *) positional+=("$1") ;;
+    esac
+    shift
+done
+
+target="${positional[0]:-bitforge}"
 host="${target%%:*}"
 if [ "$host" != "$target" ]; then
     remote_dir="${target#*:}"
@@ -45,9 +70,10 @@ have() { command -v "$1" >/dev/null 2>&1; }
 # Decide which clipboard backend to use for this session. On Wayland, do not
 # fall back to xclip: it reads the X11 clipboard through XWayland and usually
 # cannot see the image, which would give a misleading "no image" error. Tell
-# the user to install wl-clipboard instead.
+# the user to install wl-clipboard instead. wl-copy is only needed when we
+# write the path back to the clipboard (i.e. not --print-only).
 if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-    if have wl-paste && have wl-copy; then
+    if have wl-paste && { [ "$print_only" -eq 1 ] || have wl-copy; }; then
         backend="wayland"
     else
         echo "clip2remote: Wayland session detected, but wl-clipboard is missing." >&2
@@ -112,7 +138,10 @@ stamp="$(date +%Y%m%d-%H%M%S)-$$"
 remote_path="$remote_dir/clip-$stamp.$ext"
 scp -q "$tmp" "$host:$remote_path"
 
-# Re-copy the remote path so you can paste it straight into the remote session.
-printf '%s' "$remote_path" | copy_text
+# Re-copy the remote path so you can paste it straight into the remote
+# session -- unless --print-only, where the caller sets the clipboard.
+if [ "$print_only" -eq 0 ]; then
+    printf '%s' "$remote_path" | copy_text
+fi
 
 echo "$remote_path"
