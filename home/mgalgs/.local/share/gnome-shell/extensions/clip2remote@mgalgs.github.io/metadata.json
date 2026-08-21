@@ -1,0 +1,7 @@
+{
+  "uuid": "clip2remote@mgalgs.github.io",
+  "name": "clip2remote",
+  "description": "Panel menu that uploads the clipboard image to a chosen host with clip2remote.sh and copies the resulting remote path to the clipboard. For pasting screenshots into a remote Claude Code / editor session over SSH. Edit the DESTINATIONS list in extension.js to change the hosts.",
+  "shell-version": ["46", "47", "48", "49", "50"],
+  "url": "https://github.com/mgalgs/conf-files"
+}
