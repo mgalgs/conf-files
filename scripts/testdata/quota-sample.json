@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "generated_at": "2026-09-15T16:22:41-07:00",
+  "sources": [
+    {
+      "source": "claude", "title": "CLAUDE", "plan": "max_20x", "verb": "fetched",
+      "observed_at": "2026-09-15T16:22:39-07:00", "observed_age_seconds": 2,
+      "warning": "", "error": "",
+      "windows": [
+        {"key":"session","label":"5-hour","percent":52.0,
+         "resets_at":"2026-09-15T18:00:00-07:00","resets_in_seconds":6237,
+         "window_seconds":18000,"note":"",
+         "projection":{"valid":true,"model":"slope","rate_per_hour":4.2,
+          "percent_at_reset":99.3,"full_at":"2026-09-15T17:55:00-07:00",
+          "exhausts_before_reset":true,"gap_seconds":-300}},
+        {"key":"weekly_all","label":"Weekly","percent":47.0,
+         "resets_at":"2026-09-20T21:00:00-07:00","resets_in_seconds":447000,
+         "window_seconds":604800,"note":"",
+         "projection":{"valid":true,"model":"sustained","rate_per_hour":1.1,
+          "percent_at_reset":84.6,"full_at":"2026-09-17T18:00:00-07:00",
+          "exhausts_before_reset":false,"gap_seconds":270000}},
+        {"key":"weekly_scoped","label":"Weekly · Fable","percent":28.0,
+         "resets_at":"2026-09-20T21:00:00-07:00","resets_in_seconds":447000,
+         "window_seconds":604800,"note":"",
+         "projection":{"valid":true,"model":"sustained","rate_per_hour":0.6,
+          "percent_at_reset":62.0,"full_at":"2026-09-19T14:00:00-07:00",
+          "exhausts_before_reset":false,"gap_seconds":-25200}}
+      ]
+    },
+    {
+      "source": "codex", "title": "CODEX", "plan": "team", "verb": "reported",
+      "observed_at": "2026-09-15T16:22:40-07:00", "observed_age_seconds": 1,
+      "warning": "a log is cut off; the reading may be stale", "error": "",
+      "windows": [
+        {"key":"primary","label":"5-hour","percent":56.0,
+         "resets_at":"2026-09-15T17:25:00-07:00","resets_in_seconds":3720,
+         "window_seconds":18000,"note":"",
+         "projection":{"valid":false}},
+        {"key":"secondary","label":"Weekly","percent":14.0,
+         "resets_at":"2026-09-21T20:00:00-07:00","resets_in_seconds":531000,
+         "window_seconds":604800,"note":"",
+         "projection":{"valid":true,"model":"sustained","rate_per_hour":0.7,
+          "percent_at_reset":117.2,"full_at":"2026-09-20T10:00:00-07:00",
+          "exhausts_before_reset":true,"gap_seconds":-122400}}
+      ]
+    }
+  ]
+}
