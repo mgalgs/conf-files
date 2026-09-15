@@ -58,10 +58,13 @@
 # unknown, which greys rather than passing for fresh, and a payload predating
 # them falls back to observed_age_seconds plus the cache file's own age.
 #
-# A non-empty warning ("this reading is real but something about it is off",
-# today a truncated session log) deliberately does NOT grey. It fires
-# continuously on at least one machine, and a grey that is always on teaches
-# you to stop reading it; grey has to stay rare to mean anything.
+# A non-empty warning ("this reading is real but something about it is off")
+# deliberately does NOT grey. Grey says "too old to trust", and it only carries
+# that meaning while it stays rare: for as long as a warning fires on close to
+# every scan, greying on it would pin a source grey permanently and drown out
+# the staleness signal. One glyph per window leaves no room for a third state,
+# so the channel goes to the condition that actually varies. Worth revisiting
+# if warnings become rare, or if the field grows a severity.
 set -euo pipefail
 
 ticks=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
