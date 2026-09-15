@@ -1,10 +1,11 @@
 {
   "schema": 1,
   "generated_at": "2026-09-15T16:22:41-07:00",
+  "generated_at_epoch": 1789514561,
   "sources": [
     {
       "source": "claude", "title": "CLAUDE", "plan": "max_20x", "verb": "fetched",
-      "observed_at": "2026-09-15T16:22:39-07:00", "observed_age_seconds": 2,
+      "observed_at": "2026-09-15T16:22:39-07:00", "observed_at_epoch": 1789514559, "observed_age_seconds": 2,
       "warning": "", "error": "",
       "windows": [
         {"key":"session","label":"5-hour","percent":52.0,
@@ -29,7 +30,7 @@
     },
     {
       "source": "codex", "title": "CODEX", "plan": "team", "verb": "reported",
-      "observed_at": "2026-09-15T16:22:40-07:00", "observed_age_seconds": 1,
+      "observed_at": "2026-09-15T16:22:40-07:00", "observed_at_epoch": 1789514560, "observed_age_seconds": 1,
       "warning": "a log is cut off; the reading may be stale", "error": "",
       "windows": [
         {"key":"primary","label":"5-hour","percent":56.0,

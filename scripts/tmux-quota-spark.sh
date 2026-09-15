@@ -35,7 +35,11 @@
 #   TMUX_QUOTA_STATE            Render this document instead of the cache. The
 #                               script then never refreshes and never writes,
 #                               so it is safe to point at a checked-in fixture
-#                               (see testdata/quota-sample.json).
+#                               (see testdata/quota-sample.json). Note that the
+#                               fixture's epoch stamps are fixed, so it greys
+#                               out once it is older than the stale threshold,
+#                               which is correct rather than a bug. To preview
+#                               it in color, raise TMUX_QUOTA_STALE_SECONDS.
 #   TMUX_QUOTA_REFRESH_SECONDS  How old the cache may get before a background
 #                               refresh is fired (default 60).
 #   TMUX_QUOTA_STALE_SECONDS    How old a reading may get before its glyphs go
@@ -44,6 +48,20 @@
 #                               report one, so it legitimately goes hours or
 #                               days stale; a confident-looking bar over a
 #                               five-day-old number is actively misleading.
+#
+# Age comes from the document's absolute epoch stamps, so it stays correct no
+# matter how long the document sat in the cache: observed_at_epoch is when the
+# reading was taken, generated_at_epoch is when the document was built. A
+# source is greyed on whichever is older, because a reading cannot be fresher
+# than the document carrying it -- that second term is what catches a refresher
+# that has silently stopped working. Both stamps are null when the time is
+# unknown, which greys rather than passing for fresh, and a payload predating
+# them falls back to observed_age_seconds plus the cache file's own age.
+#
+# A non-empty warning ("this reading is real but something about it is off",
+# today a truncated session log) deliberately does NOT grey. It fires
+# continuously on at least one machine, and a grey that is always on teaches
+# you to stop reading it; grey has to stay rare to mean anything.
 set -euo pipefail
 
 ticks=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
@@ -145,16 +163,15 @@ if [[ -s "$state" ]]; then
     state_mtime="$(mtime_of "$state")" || state_mtime=""
 fi
 
-# observed_age_seconds is the age of the reading when quotatop generated the
-# document, so the true age now is that plus however long the document has sat
-# in the cache. Without this correction a quotatop that has been failing for an
-# hour keeps painting confident colors over an hour-old number. An explicit
-# TMUX_QUOTA_STATE is a static fixture rather than a live cache, so its file
-# mtime says nothing about the reading and the correction is skipped.
-age_offset=0
+# Only consulted for payloads that predate generated_at_epoch; the epoch stamps
+# are absolute, so when they are present no correction is needed. -1 means
+# "unknown", which is not the same as "fresh": an explicit TMUX_QUOTA_STATE is a
+# static fixture rather than a live cache, so its file mtime says nothing about
+# when the reading was taken.
+doc_fallback_age=-1
 if (( ! override )) && [[ -n "$state_mtime" ]]; then
-    age_offset=$(( now - state_mtime ))
-    (( age_offset < 0 )) && age_offset=0
+    doc_fallback_age=$(( now - state_mtime ))
+    (( doc_fallback_age < 0 )) && doc_fallback_age=0
 fi
 
 if (( ! override )); then
@@ -180,7 +197,7 @@ fi
 # four fields the widget actually needs, so every other key in the schema --
 # projections, labels, reset times -- costs nothing here.
 read_state() {
-    awk '
+    awk -v now="$2" -v doc_fallback="$3" '
     { doc = doc $0 "\n" }
 
     # Path of a value about to be placed in the container at depth d. Also
@@ -242,9 +259,25 @@ read_state() {
             note_source(si)
         } else if (path ~ /^sources\[[0-9]+\]\.observed_age_seconds$/) {
             si = nth_index(path, 1)
-            sage[si] = int(val + 0)
-            shas_age[si] = 1
+            # null means the observation time is unknown, which must read as
+            # unknown rather than as zero seconds old.
+            if (val != "null" && val != "") {
+                sage[si] = int(val + 0)
+                shas_age[si] = 1
+            }
             note_source(si)
+        } else if (path ~ /^sources\[[0-9]+\]\.observed_at_epoch$/) {
+            si = nth_index(path, 1)
+            if (val != "null" && val != "") {
+                sobs[si] = int(val + 0)
+                shas_obs[si] = 1
+            }
+            note_source(si)
+        } else if (path == "generated_at_epoch") {
+            if (val != "null" && val != "") {
+                gen_epoch = int(val + 0)
+                has_gen = 1
+            }
         } else if (path ~ /^sources\[[0-9]+\]\.error$/) {
             si = nth_index(path, 1)
             serr[si] = (val != "" && val != "null") ? 1 : 0
@@ -303,9 +336,28 @@ read_state() {
             i = j
         }
 
+        doc_age = (has_gen ? now - gen_epoch : doc_fallback)
+        if (has_gen && doc_age < 0) doc_age = 0
+
         for (s = 0; s < nsrc; s++) {
+            # Absolute stamp first: it already accounts for time spent in the
+            # cache. Relative age only as a fallback, and then it does need the
+            # document age added back.
+            if (shas_obs[s]) {
+                reading = now - sobs[s]
+                if (reading < 0) reading = 0
+            } else if (shas_age[s]) {
+                reading = sage[s] + (doc_age > 0 ? doc_age : 0)
+            } else {
+                reading = -1
+            }
+            # A reading cannot be fresher than the document carrying it.
+            if (reading < 0) eff = -1
+            else if (doc_age > reading) eff = doc_age
+            else eff = reading
+
             line = ((s in sid) ? sid[s] : "?")
-            line = line " " (shas_age[s] ? sage[s] : -1)
+            line = line " " eff
             line = line " " (serr[s] ? 1 : 0)
             wc = wcount[s] + 0
             for (w = 0; w < wc; w++) line = line " " glyph[s, w]
@@ -335,7 +387,7 @@ if [[ -s "$state" ]]; then
         fi
 
         stale=0
-        if (( age < 0 )) || (( age + age_offset > stale_seconds )); then
+        if (( age < 0 )) || (( age > stale_seconds )); then
             stale=1
         fi
 
@@ -347,7 +399,7 @@ if [[ -s "$state" ]]; then
                 out+="#[fg=colour${ramp[gi]},nobright]${ticks[gi]}"
             fi
         done
-    done < <(read_state "$state")
+    done < <(read_state "$state" "$now" "$doc_fallback_age")
 fi
 
 # No document, an unreadable one, or no sources in it. Show something dim
