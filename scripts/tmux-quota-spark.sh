@@ -32,6 +32,11 @@
 # tree, which is fine once a minute and ruinous at 1 Hz.
 #
 # Environment:
+#   TMUX_QUOTA_ICONS            Set to 0 to drop the per-source Nerd Font
+#                               logos and render bare glyphs. They need Nerd
+#                               Fonts 3.5.0 or newer (cod-claude and cod-openai
+#                               were added there); an older font draws them as
+#                               tofu, so a machine still on 3.4.x wants this.
 #   TMUX_QUOTA_STATE            Render this document instead of the cache. The
 #                               script then never refreshes and never writes,
 #                               so it is safe to point at a checked-in fixture
@@ -72,6 +77,16 @@ set -euo pipefail
 ticks=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
 grey=238
 scheme="${1:-vivid}"
+
+# One logo per source, so a glance says which bars belong to whom rather than
+# leaving it to the reading order. Written as escapes rather than pasted in
+# literally: these are private-use codepoints that show up as tofu in most
+# editors, and the escape at least names what it is.
+icon_claude=$'\uec82'   # nf-cod-claude
+icon_codex=$'\uec81'    # nf-cod-openai
+icon_other=$'\uec10'    # nf-cod-sparkle, for a source id we do not know
+icon_colour=245
+icons="${TMUX_QUOTA_ICONS:-1}"
 
 case "$scheme" in
     vivid)   ramp=(46 118 154 184 220 214 208 196) ;;
@@ -392,14 +407,29 @@ if [[ -s "$state" ]]; then
         warn="${f[3]}"
         idxs=("${f[@]:4}")
 
-        if (( err )) || (( ${#idxs[@]} == 0 )); then
-            out+="#[fg=colour${grey},nobright]·"
-            continue
-        fi
-
         untrusted=0
         if (( age < 0 )) || (( age > stale_seconds )) || (( warn )); then
             untrusted=1
+        fi
+
+        # The logo is drawn for a dead source too -- "which one died" is the
+        # first thing you want to know, and a bare dot does not say.
+        if (( icons )); then
+            case "${f[0]}" in
+                claude) icon="$icon_claude" ;;
+                codex)  icon="$icon_codex" ;;
+                *)      icon="$icon_other" ;;
+            esac
+            if (( err )) || (( untrusted )); then
+                out+="#[fg=colour${grey},nobright]${icon}"
+            else
+                out+="#[fg=colour${icon_colour},nobright]${icon}"
+            fi
+        fi
+
+        if (( err )) || (( ${#idxs[@]} == 0 )); then
+            out+="#[fg=colour${grey},nobright]·"
+            continue
         fi
 
         for gi in "${idxs[@]}"; do
