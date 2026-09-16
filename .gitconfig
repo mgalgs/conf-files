@@ -22,6 +22,7 @@
 	excludesfile = ~/.gitignore
 	pager = less -R -F -X
 	abbrev = 10
+	hooksPath = ~/src/claude-config/git-hooks
 [alias]
 	gr = log --graph --full-history --all --color --decorate --oneline
 	grjustme = log --graph --color --decorate --oneline
