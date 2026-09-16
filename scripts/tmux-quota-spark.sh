@@ -59,12 +59,14 @@
 # them falls back to observed_age_seconds plus the cache file's own age.
 #
 # A non-empty warning ("this reading is real but something about it is off")
-# deliberately does NOT grey. Grey says "too old to trust", and it only carries
-# that meaning while it stays rare: for as long as a warning fires on close to
-# every scan, greying on it would pin a source grey permanently and drown out
-# the staleness signal. One glyph per window leaves no room for a third state,
-# so the channel goes to the condition that actually varies. Worth revisiting
-# if warnings become rare, or if the field grows a severity.
+# greys its source as well. Grey means "do not trust this number", which covers
+# a reading too old to believe and one the producer has flagged as compromised;
+# the reader's next move is the same either way, and one glyph per window
+# leaves no room to tell them apart. This holds only while warnings stay rare,
+# which is what reserving the field for genuine read errors buys. Were it ever
+# to fire on close to every scan again, greying on it would pin a source grey
+# permanently and drown out the staleness signal, and it should go back to
+# being ignored here.
 set -euo pipefail
 
 ticks=(▁ ▂ ▃ ▄ ▅ ▆ ▇ █)
@@ -192,7 +194,7 @@ fi
 
 # Flatten the document and emit one line per source:
 #
-#     <id> <age_seconds> <error_flag> [<glyph_index> ...]
+#     <id> <age_seconds> <error_flag> <warning_flag> [<glyph_index> ...]
 #
 # This is a real (small) JSON walker rather than a line-oriented grep because
 # nothing promises the document stays pretty-printed: quotatop may well emit it
@@ -281,6 +283,10 @@ read_state() {
                 gen_epoch = int(val + 0)
                 has_gen = 1
             }
+        } else if (path ~ /^sources\[[0-9]+\]\.warning$/) {
+            si = nth_index(path, 1)
+            swarn[si] = (val != "" && val != "null") ? 1 : 0
+            note_source(si)
         } else if (path ~ /^sources\[[0-9]+\]\.error$/) {
             si = nth_index(path, 1)
             serr[si] = (val != "" && val != "null") ? 1 : 0
@@ -362,6 +368,7 @@ read_state() {
             line = ((s in sid) ? sid[s] : "?")
             line = line " " eff
             line = line " " (serr[s] ? 1 : 0)
+            line = line " " (swarn[s] ? 1 : 0)
             wc = wcount[s] + 0
             for (w = 0; w < wc; w++) line = line " " glyph[s, w]
             print line
@@ -374,7 +381,7 @@ out=""
 first=1
 if [[ -s "$state" ]]; then
     while read -ra f; do
-        (( ${#f[@]} >= 3 )) || continue
+        (( ${#f[@]} >= 4 )) || continue
         if (( ! first )); then
             out+=" "
         fi
@@ -382,21 +389,22 @@ if [[ -s "$state" ]]; then
 
         age="${f[1]}"
         err="${f[2]}"
-        idxs=("${f[@]:3}")
+        warn="${f[3]}"
+        idxs=("${f[@]:4}")
 
         if (( err )) || (( ${#idxs[@]} == 0 )); then
             out+="#[fg=colour${grey},nobright]·"
             continue
         fi
 
-        stale=0
-        if (( age < 0 )) || (( age > stale_seconds )); then
-            stale=1
+        untrusted=0
+        if (( age < 0 )) || (( age > stale_seconds )) || (( warn )); then
+            untrusted=1
         fi
 
         for gi in "${idxs[@]}"; do
             (( gi >= 0 && gi <= 7 )) || gi=0
-            if (( stale )); then
+            if (( untrusted )); then
                 out+="#[fg=colour${grey},nobright]${ticks[gi]}"
             else
                 out+="#[fg=colour${ramp[gi]},nobright]${ticks[gi]}"
