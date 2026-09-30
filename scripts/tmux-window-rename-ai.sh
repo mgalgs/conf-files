@@ -184,13 +184,18 @@ ${context}
         body=$(printf '%s' "$body" | jq '. + {chat_template_kwargs: {enable_thinking: false}}')
     fi
 
-    local -a curl_args=(-s --max-time 30 "$API_URL" -H "Content-Type: application/json")
+    # The key and the body stay out of curl's argv, which any local user can
+    # read in ps: the key goes in as a config file on a pipe (printf is a
+    # builtin, so it never execs), the body on stdin. The <(...) must sit on
+    # the curl line itself: one stored in an array is closed before curl runs.
+    local headers='header = "Content-Type: application/json"'
     if [[ -n "$API_KEY" ]]; then
-        curl_args+=(-H "Authorization: Bearer $API_KEY")
+        headers+=$'\n'"header = \"Authorization: Bearer ${API_KEY}\""
     fi
 
     local response
-    response=$(curl "${curl_args[@]}" -d "$body")
+    response=$(curl -s --max-time 30 "$API_URL" -K <(printf '%s\n' "$headers") \
+        --data-binary @- <<<"$body")
 
     local raw_name name
     raw_name=$(echo "$response" | jq -r '.choices[0].message.content // empty')
