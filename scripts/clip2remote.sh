@@ -15,13 +15,16 @@
 #   --print-only  Do not touch the local clipboard; just print the remote
 #                 path on stdout. The GNOME clip2remote extension uses this
 #                 and sets the clipboard itself.
-#   host          SSH target. Default: bitforge
+#   host          SSH target. Defaults to $CLIP2REMOTE_HOST when no host is
+#                 given; with neither a host nor that variable, the script
+#                 exits with an error.
 #   /remote/dir   Destination directory on the host. Default: /tmp
 #
 # Examples:
-#   clip2remote.sh                       # -> bitforge:/tmp/clip-<stamp>.png
-#   clip2remote.sh bitforge.home.lan:/home/mgalgs/shots
-#   clip2remote.sh --print-only omie.home.lan
+#   clip2remote.sh host.example.lan
+#   clip2remote.sh host.example.lan:/home/me/shots
+#   clip2remote.sh --print-only user@host.example.lan
+#   CLIP2REMOTE_HOST=host.example.lan clip2remote.sh   # env default
 #
 # Requires (local): openssh (scp), and one clipboard tool for your session:
 #   Wayland -> wl-clipboard (wl-paste, plus wl-copy unless --print-only)
@@ -50,7 +53,11 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-target="${positional[0]:-bitforge}"
+target="${positional[0]:-${CLIP2REMOTE_HOST:-}}"
+if [ -z "$target" ]; then
+    echo "clip2remote: no target host given (pass a host, or set CLIP2REMOTE_HOST)" >&2
+    exit 2
+fi
 host="${target%%:*}"
 if [ "$host" != "$target" ]; then
     remote_dir="${target#*:}"
