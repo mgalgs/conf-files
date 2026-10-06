@@ -20,3 +20,8 @@ case ":$PATH:" in
   *":$NVM_DIR/current/bin:"*) ;;
   *) [ -d "$NVM_DIR/current/bin" ] && export PATH="$NVM_DIR/current/bin:$PATH" ;;
 esac
+
+# Every Codex run here goes through fork-sandbox, which binds a run-private
+# dir over ~/.codex/sessions -- so the rate-limit snapshots quotatop reads
+# never reach the default path. Point it at the archive fork-sandbox keeps.
+export QUOTATOP_CODEX_ROOTS="$HOME/.claude/codex-quota"
