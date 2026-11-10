@@ -61,7 +61,8 @@ WINDOW_ID=$(tmux display-message ${target:+-t "$target"} -p '#{window_id}')
 [[ -n "$WINDOW_ID" ]] || { echo "tmux-window-rename-ai.sh: no such window: $target" >&2; exit 2; }
 API_URL="${TMUX_RENAME_API_URL:-https://openrouter.ai/api/v1/chat/completions}"
 API_KEY="${TMUX_RENAME_API_KEY:-${OPENROUTER_API_KEY:-}}"
-# Not gemini-2.5-flash: it ignores the no-org-or-repo-names rule.
+# Not gemini-2.5-flash: it names the window after whatever word dominates
+# the context, even one every other window shares.
 MODEL="${TMUX_RENAME_MODEL:-anthropic/claude-haiku-4.5}"
 LOG="/tmp/tmux-window-rename-ai.log"
 
@@ -196,18 +197,22 @@ ${visible}
     done
 
     local others
-    others=$(tmux list-windows -a -F '#{window_id} #{window_name}' \
-        | awk -v me="$WINDOW_ID" '$1 != me { sub(/^[^ ]+ /, ""); print }' \
-        | sort -u | paste -sd' ' -)
+    others=$(tmux list-windows -a -F $'#{window_id}\t#{window_name}\t#{pane_current_path}' \
+        | awk -F'\t' -v me="$WINDOW_ID" -v home="$HOME" \
+            '$1 != me { if (index($3, home) == 1) $3 = "~" substr($3, length(home) + 1)
+                        print "- " $2 " (in " $3 ")" }' \
+        | sort -u)
     local prompt
     prompt="You are naming a tmux window so the user can find it at a glance among their other windows. The pane context is at the end.
 
 First work out what this window is FOR: the job being done, and what it is being done to. Then name it after that job.
 
-A good name is the word the user would say in \"switch to the ___ window\". It names the job or its specific object, never the place the job happens: the user's org, cluster, repo or project name is shared by many of their windows and tells them nothing.
+A good name is the word the user would say in \"switch to the ___ window\": whatever tells this window apart from the others.
 
-The user's other windows are named: ${others}
-Use the same terse style, and pick something that tells this window apart from those.
+The user's other windows, with the directory each works in:
+${others}
+
+Use the same terse style. A repo, project, cluster or org name (or its abbreviation) is a good name when no other window works in it, and a useless one when others do; then name the job or its specific object instead.
 
 Reply in exactly this format, nothing else:
 task: <one short sentence: what is being done, to what>
@@ -216,7 +221,6 @@ task: <one short sentence: what is being done, to what>
 <name>
 
 Rules for the names:
-- Never put the name of a cluster, company, org, host group or repo in a name, not even abbreviated: the user works inside those all day, so they never tell windows apart. Name what is being done or the specific thing it is done to.
 - Best first. Lowercase. Aim for 8 characters or fewer; go longer only when a shorter name would be unclear. One word is best; two short hyphenated words at most. Abbreviate freely (wg, k8s, mig, cfg).
 - Drop file extensions and filler: a file named 'tmux-window-rename-ai.sh' becomes 'win-name', never 'tmux-window-rename-ai-sh'.
 - Ignore incidental noise: command flags, bare numbers and token counts (e.g. '32'), timestamps, shell prompts, and this renamer's own curl/jq/tmux commands are NEVER the subject.
