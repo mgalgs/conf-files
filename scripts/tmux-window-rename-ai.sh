@@ -32,6 +32,10 @@
 #   TMUX_RENAME_MODEL    Model name. Default: google/gemini-2.5-flash (OpenRouter).
 #                        For vLLM, set to the served model name.
 #
+# Usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>]
+#   -t         the window to name (default: the current one)
+#   --dry-run  print the model's reply and the chosen name; rename nothing
+#
 # WARNING: This script sends pane content to the configured LLM API — visible
 # on-screen text for ordinary panes, and session-transcript excerpts (title,
 # first message, recent turns) for Claude Code panes. Do not use it if your
@@ -39,7 +43,17 @@
 # and prefer a self-hosted endpoint when the transcript is confidential.
 set -euo pipefail
 
-WINDOW_ID=$(tmux display-message -p '#{window_id}')
+DRY_RUN=false
+target=""
+while (( $# )); do
+    case "$1" in
+        --dry-run) DRY_RUN=true; shift ;;
+        -t) target="${2:?-t needs a window}"; shift 2 ;;
+        *) echo "usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>]" >&2; exit 2 ;;
+    esac
+done
+# Resolve to an @id: the other-windows list is filtered by it.
+WINDOW_ID=$(tmux display-message ${target:+-t "$target"} -p '#{window_id}')
 API_URL="${TMUX_RENAME_API_URL:-https://openrouter.ai/api/v1/chat/completions}"
 API_KEY="${TMUX_RENAME_API_KEY:-${OPENROUTER_API_KEY:-}}"
 MODEL="${TMUX_RENAME_MODEL:-google/gemini-2.5-flash}"
@@ -72,9 +86,16 @@ transcript_context() {
         ) as $turns
       | if ($turns | length) == 0 then ""
         else
-          ($turns | map(select(.role == "user")) | (.[0].text // "")) as $goal
-          | "Session title: \($title)\n\nOverall goal (first user message):\n"
-            + $goal[0:600]
+          ($turns | map(select(.role == "user")) | (.[0].text // "")) as $first
+          # A forked session opens with launcher boilerplate before the
+          # handoff doc; start the excerpt at the doc'"'"'s first heading.
+          | ($first | (if startswith("# ") then 0 else (index("\n# ") // -1) + 1 end)) as $at
+          | ($first[$at:]) as $goal
+          | ($goal | if startswith("# ") then (split("\n")[0] | ltrimstr("# ")) else "" end) as $heading
+          | "Session title: \($title)\n"
+            + (if $heading != "" then "Task heading: \($heading)\n" else "" end)
+            + "\nOverall goal (first user message):\n"
+            + $goal[0:800]
             + "\n\nRecent conversation (most recent last):\n"
             + ( $turns[-8:]
                 | map((if .role == "user" then "User" else "Assistant" end)
@@ -84,7 +105,34 @@ transcript_context() {
     ' "$file" 2>/dev/null || true
 }
 
+# Animate the window name while the model thinks. Frames are an array, not a
+# string: run-shell may give us the C locale, where substrings cut bytes.
+spin() { # spin <name>
+    local frames=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏) i=0
+    while :; do
+        tmux rename-window -t "$WINDOW_ID" "${frames[i++ % ${#frames[@]}]} $1"
+        sleep 0.15
+    done
+}
+
+# Runs on every exit, so an error mid-way still puts a name back.
+SPIN_PID="" FINAL=""
+stop_spin() {
+    [[ -n "$SPIN_PID" ]] || return 0
+    kill "$SPIN_PID" 2>/dev/null || true
+    wait "$SPIN_PID" 2>/dev/null || true
+    SPIN_PID=""
+    tmux rename-window -t "$WINDOW_ID" "$FINAL"
+}
+
 main() {
+    if ! $DRY_RUN; then
+        FINAL=$(tmux display-message -t "$WINDOW_ID" -p '#{window_name}')
+        trap stop_spin EXIT
+        spin "$FINAL" &
+        SPIN_PID=$!
+    fi
+
     local context=""
     local pane_num=0
     local map_root
@@ -141,28 +189,43 @@ ${visible}
 "
     done
 
+    local others
+    others=$(tmux list-windows -a -F '#{window_id} #{window_name}' \
+        | awk -v me="$WINDOW_ID" '$1 != me { sub(/^[^ ]+ /, ""); print }' \
+        | sort -u | paste -sd' ' -)
     local prompt
-    prompt="Name this tmux window from the pane context at the end.
+    prompt="You are naming a tmux window so the user can find it at a glance among their other windows. The pane context is at the end.
 
-Name the concrete thing being worked on right now: the actual file, feature, service, error, command, or topic visible on screen. Be specific, not categorical — name the instance, not the genre.
+First work out what this window is FOR: the job being done, and what it is being done to. Then name it after that job.
 
-Hard rules (follow exactly):
-- Output ONLY the slug. No quotes, no prose, no explanation, no trailing punctuation.
-- Format: lowercase, hyphen-separated, 2 to 4 words, at most 28 characters. Prefer fewer words.
-- Drop file extensions: a file named 'tmux-window-rename-ai.sh' becomes 'tmux-rename', never 'tmux-window-rename-ai-sh'.
+A good name is the word the user would say in \"switch to the ___ window\". It names the job or its specific object, never the place the job happens: the user's org, cluster, repo or project name is shared by many of their windows and tells them nothing.
+
+The user's other windows are named: ${others}
+Use the same terse style, and pick something that tells this window apart from those.
+
+Reply in exactly this format, nothing else:
+task: <one short sentence: what is being done, to what>
+<name>
+<name>
+<name>
+
+Rules for the names:
+- Best first. Lowercase, AT MOST 8 CHARACTERS. One word is best; two short hyphenated words at most. Abbreviate freely (wg, k8s, mig, cfg).
+- Drop file extensions and filler: a file named 'tmux-window-rename-ai.sh' becomes 'win-name', never 'tmux-window-rename-ai-sh'.
 - Ignore incidental noise: command flags, bare numbers and token counts (e.g. '32'), timestamps, shell prompts, and this renamer's own curl/jq/tmux commands are NEVER the subject.
-- Anchor to the most distinctive noun on screen (a filename without its extension, a function, a service, an error, a host), then add what is being done to it, subject first.
-- For a pane marked '(Claude Code session)', name the task that session is working on — lean on its session title and most recent turns, and prefer the current focus over the opening request when they differ.
+- For a pane marked '(Claude Code session)', name the task that session is working on: lean on its task heading and most recent turns, and prefer the current focus over the opening request when they differ.
 - If a pane is just a TUI or an idle shell with no task, name it after that tool (htop, less, psql).
 
-Examples — bad (too generic, or copied literally) then good (specific):
-  api-debug          -> openrouter-timeout
-  log-review         -> wireguard-tunnel-logs
-  db-migrate         -> orders-migration-rebase
-  update-metrics-py  -> metrics-exporter-fix
-  deploy             -> apps-vm-deploy
+Examples:
+task: debugging why the WireGuard tunnel to the NAS keeps dropping
+wg-drop
+wg-nas
+vpn
 
-Respond with ONLY the slug.
+task: reviewing a pull request that changes the retry backoff
+retry-pr
+backoff
+pr-retry
 
 <panes>
 ${context}
@@ -170,16 +233,17 @@ ${context}
 
     local body
     body=$(jq -n --arg model "$MODEL" --arg content "$prompt" \
-        '{model: $model, max_tokens: 32, temperature: 0.3,
+        '{model: $model, max_tokens: 96, temperature: 0.3,
           messages: [{role: "user", content: $content}]}')
 
-    # Suppress chain-of-thought so the whole token budget goes to the slug
-    # (a reasoning model like Qwen3 otherwise spends all 32 tokens thinking and
-    # returns nothing usable). OpenRouter uses a "reasoning" field; vLLM rejects
-    # unknown top-level fields but honors chat_template_kwargs.enable_thinking,
-    # which non-reasoning chat templates ignore harmlessly.
+    # On OpenRouter, give the model a bounded reasoning budget: without it,
+    # it names the window after the most frequent word in the context (the
+    # cluster or org) instead of the job. max_tokens must cover reasoning
+    # plus the reply. vLLM rejects unknown top-level fields, so there thinking
+    # is switched off via chat_template_kwargs, which non-reasoning chat
+    # templates ignore harmlessly.
     if [[ "$API_URL" == *openrouter.ai* ]]; then
-        body=$(printf '%s' "$body" | jq '. + {reasoning: {enabled: false}}')
+        body=$(printf '%s' "$body" | jq '. + {max_tokens: 1200, reasoning: {max_tokens: 1024}}')
     else
         body=$(printf '%s' "$body" | jq '. + {chat_template_kwargs: {enable_thinking: false}}')
     fi
@@ -197,26 +261,36 @@ ${context}
     response=$(curl -s --max-time 30 "$API_URL" -K <(printf '%s\n' "$headers") \
         --data-binary @- <<<"$body")
 
-    local raw_name name
-    raw_name=$(echo "$response" | jq -r '.choices[0].message.content // empty')
-    if [[ -z "$raw_name" ]]; then
+    local raw name="" first="" line slug
+    raw=$(echo "$response" | jq -r '.choices[0].message.content // empty')
+    if [[ -z "$raw" ]]; then
         echo "$(date -Iseconds) No content in response: ${response}" >> "$LOG"
         return 1
     fi
-    # Small models sometimes prepend prose or emit the slug on its own line;
-    # keep only the last non-blank line before slugifying so preamble like
-    # "Here's the name:" doesn't get mashed into the slug.
-    raw_name=$(printf '%s' "$raw_name" | grep -v '^[[:space:]]*$' | tail -1)
-    name=$(printf '%s' "$raw_name" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-')
-    # Trim to 28 chars at a hyphen boundary so we never cut a word mid-token.
-    if (( ${#name} > 28 )); then
-        name=${name:0:28}
-        name=${name%-*}
+    echo "$(date -Iseconds) $WINDOW_ID reply: $(printf '%s' "$raw" | paste -sd'|' -)"
+    # Take the first name that fits. Lines that slugify to something long are
+    # the task line, preamble, or a name over the limit.
+    while IFS= read -r line; do
+        [[ "$line" != [Tt]ask:* ]] || continue
+        slug=$(printf '%s' "$line" | sed -E 's/^[[:space:]]*[0-9]+[.)]//' \
+            | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | sed 's/^-*//;s/-*$//')
+        [[ -n "$slug" ]] || continue
+        [[ -n "$first" ]] || first="$slug"
+        if (( ${#slug} <= 8 )); then
+            name="$slug"
+            break
+        fi
+    done <<<"$raw"
+    # None fits: cut the first one to 8 at a hyphen when there is one.
+    if [[ -z "$name" && -n "$first" ]]; then
+        name=${first:0:8}
+        [[ "$name" != *-* ]] || name=${name%-*}
     fi
-    name=$(printf '%s' "$name" | sed 's/^-*//;s/-*$//')
 
-    if [[ -n "$name" ]]; then
-        tmux rename-window -t "$WINDOW_ID" "$name"
+    if [[ -n "$name" ]] && $DRY_RUN; then
+        printf '%s\n-> %s\n' "$raw" "$name"
+    elif [[ -n "$name" ]]; then
+        FINAL="$name"
     else
         echo "$(date -Iseconds) Failed to extract name from response: ${response}" >> "$LOG"
     fi
@@ -232,5 +306,9 @@ if ! command -v jq &>/dev/null; then
     exit 1
 fi
 
-main >> "$LOG" 2>&1 &
-disown
+if $DRY_RUN; then
+    main
+else
+    main >> "$LOG" 2>&1 &
+    disown
+fi
