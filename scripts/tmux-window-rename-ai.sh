@@ -29,11 +29,12 @@
 #                        For vLLM, e.g. http://localhost:8000/v1/chat/completions
 #   TMUX_RENAME_API_KEY  API key. Falls back to OPENROUTER_API_KEY. Optional for
 #                        vLLM endpoints that don't require auth.
-#   TMUX_RENAME_MODEL    Model name. Default: google/gemini-2.5-flash (OpenRouter).
+#   TMUX_RENAME_MODEL    Model name. Default: anthropic/claude-haiku-4.5 (OpenRouter).
 #                        For vLLM, set to the served model name.
 #
-# Usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>]
+# Usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>] [-m <model>]
 #   -t         the window to name (default: the current one)
+#   -m         the model, overriding TMUX_RENAME_MODEL
 #   --dry-run  print the model's reply and the chosen name; rename nothing
 #
 # WARNING: This script sends pane content to the configured LLM API — visible
@@ -49,14 +50,19 @@ while (( $# )); do
     case "$1" in
         --dry-run) DRY_RUN=true; shift ;;
         -t) target="${2:?-t needs a window}"; shift 2 ;;
-        *) echo "usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>]" >&2; exit 2 ;;
+        -m) TMUX_RENAME_MODEL="${2:?-m needs a model}"; shift 2 ;;
+        *) echo "usage: tmux-window-rename-ai.sh [--dry-run] [-t <window>] [-m <model>]" >&2; exit 2 ;;
     esac
 done
 # Resolve to an @id: the other-windows list is filtered by it.
 WINDOW_ID=$(tmux display-message ${target:+-t "$target"} -p '#{window_id}')
+# A missing -t window yields an empty id with exit 0, and an empty -t later
+# means "the focused window": refuse rather than name the wrong one.
+[[ -n "$WINDOW_ID" ]] || { echo "tmux-window-rename-ai.sh: no such window: $target" >&2; exit 2; }
 API_URL="${TMUX_RENAME_API_URL:-https://openrouter.ai/api/v1/chat/completions}"
 API_KEY="${TMUX_RENAME_API_KEY:-${OPENROUTER_API_KEY:-}}"
-MODEL="${TMUX_RENAME_MODEL:-google/gemini-2.5-flash}"
+# Not gemini-2.5-flash: it ignores the no-org-or-repo-names rule.
+MODEL="${TMUX_RENAME_MODEL:-anthropic/claude-haiku-4.5}"
 LOG="/tmp/tmux-window-rename-ai.log"
 
 # Summarize a Claude Code session transcript into a compact context block:
@@ -210,7 +216,8 @@ task: <one short sentence: what is being done, to what>
 <name>
 
 Rules for the names:
-- Best first. Lowercase, AT MOST 8 CHARACTERS. One word is best; two short hyphenated words at most. Abbreviate freely (wg, k8s, mig, cfg).
+- Never put the name of a cluster, company, org, host group or repo in a name, not even abbreviated: the user works inside those all day, so they never tell windows apart. Name what is being done or the specific thing it is done to.
+- Best first. Lowercase. Aim for 8 characters or fewer; go longer only when a shorter name would be unclear. One word is best; two short hyphenated words at most. Abbreviate freely (wg, k8s, mig, cfg).
 - Drop file extensions and filler: a file named 'tmux-window-rename-ai.sh' becomes 'win-name', never 'tmux-window-rename-ai-sh'.
 - Ignore incidental noise: command flags, bare numbers and token counts (e.g. '32'), timestamps, shell prompts, and this renamer's own curl/jq/tmux commands are NEVER the subject.
 - For a pane marked '(Claude Code session)', name the task that session is working on: lean on its task heading and most recent turns, and prefer the current focus over the opening request when they differ.
@@ -268,22 +275,24 @@ ${context}
         return 1
     fi
     echo "$(date -Iseconds) $WINDOW_ID reply: $(printf '%s' "$raw" | paste -sd'|' -)"
-    # Take the first name that fits. Lines that slugify to something long are
-    # the task line, preamble, or a name over the limit.
+    # Take the model's first name. The 16-character cap is not a style limit
+    # (the prompt sets that); it skips preamble ("Here are three names:")
+    # that slugifies into one long word.
+    local max=16
     while IFS= read -r line; do
         [[ "$line" != [Tt]ask:* ]] || continue
         slug=$(printf '%s' "$line" | sed -E 's/^[[:space:]]*[0-9]+[.)]//' \
             | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-' | sed 's/^-*//;s/-*$//')
         [[ -n "$slug" ]] || continue
         [[ -n "$first" ]] || first="$slug"
-        if (( ${#slug} <= 8 )); then
+        if (( ${#slug} <= max )); then
             name="$slug"
             break
         fi
     done <<<"$raw"
-    # None fits: cut the first one to 8 at a hyphen when there is one.
+    # None under the cap: cut the first one, at a hyphen when there is one.
     if [[ -z "$name" && -n "$first" ]]; then
-        name=${first:0:8}
+        name=${first:0:max}
         [[ "$name" != *-* ]] || name=${name%-*}
     fi
 
