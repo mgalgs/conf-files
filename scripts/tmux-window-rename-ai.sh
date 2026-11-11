@@ -132,6 +132,11 @@ stop_spin() {
     tmux rename-window -t "$WINDOW_ID" "$FINAL"
 }
 
+# Lane-mail names, when lane-mail.sh is installed (empty otherwise): the lane
+# a Claude session registered, and the lane last used in a directory.
+lane_of_session() { CLAUDE_CODE_SESSION_ID="$1" lane-mail.sh registration 2>/dev/null || true; }
+lane_of_dir() { lane-mail.sh lane-for "$1" 2>/dev/null || true; }
+
 main() {
     if ! $DRY_RUN; then
         FINAL=$(tmux display-message -t "$WINDOW_ID" -p '#{window_name}')
@@ -140,7 +145,7 @@ main() {
         SPIN_PID=$!
     fi
 
-    local context=""
+    local context="" window_lane=""
     local pane_num=0
     local map_root
     map_root="/tmp/claude-tmux-panes-$(id -u)"
@@ -148,8 +153,12 @@ main() {
     for pane_id in $(tmux list-panes -t "$WINDOW_ID" -F '#{pane_id}'); do
         pane_num=$((pane_num + 1))
         local cmd path enc proj key mapped transcript sess content visible
+        local lane dir_lane lanes=""
         cmd=$(tmux display-message -t "$pane_id" -p '#{pane_current_command}')
         path=$(tmux display-message -t "$pane_id" -p '#{pane_current_path}')
+        dir_lane=$(lane_of_dir "$path")
+        [[ -z "$dir_lane" ]] || lanes+="Lane last used in this directory: ${dir_lane}
+"
 
         # A pane running Claude Code is summarized from its session transcript
         # rather than the visible TUI tail. The SessionStart hook recorded this
@@ -169,11 +178,13 @@ main() {
                 fi
             fi
             if [[ -n "$transcript" ]]; then
+                lane=$(lane_of_session "$(basename "$transcript" .jsonl)")
+                [[ -n "$window_lane" ]] || window_lane="$lane"
                 sess=$(transcript_context "$transcript")
                 if [[ -n "${sess//[[:space:]]/}" ]]; then
                     context+="=== Pane ${pane_num} (Claude Code session) ===
 Directory: ${path}
-${sess}
+${lanes}${sess}
 
 "
                     continue
@@ -190,11 +201,23 @@ ${sess}
         context+="=== Pane ${pane_num} ===
 Command: ${cmd}
 Directory: ${path}
---- Visible output (most recent last) ---
+${lanes}--- Visible output (most recent last) ---
 ${visible}
 
 "
     done
+
+    # A registered lane is a name the user already chose for the session, and
+    # unique to it: no model needed.
+    if [[ -n "$window_lane" ]]; then
+        echo "$(date -Iseconds) $WINDOW_ID lane: $window_lane"
+        if $DRY_RUN; then
+            echo "-> $window_lane (registered lane)"
+        else
+            FINAL="$window_lane"
+        fi
+        return 0
+    fi
 
     local others
     others=$(tmux list-windows -a -F $'#{window_id}\t#{window_name}\t#{pane_current_path}' \
@@ -212,9 +235,9 @@ A good name is the word the user would say in \"switch to the ___ window\": what
 The user's other windows, with the directory each works in:
 ${others}
 
-Use the same terse style. A repo, project, cluster or org name (or its abbreviation) is a good name when no other window works in it, and a useless one when others do; then name the job or its specific object instead.
+Use the same terse style. When no other window works in this window's repo or project, name it after the repo: the lane last used in its directory when one is given (that is the user's short alias for it), else the repo name or a short alias of it. When others share the repo, its name is useless, as is a cluster or org name: name the job or its specific object.
 
-Reply in exactly this format, nothing else:
+Reply with ONE task line and three names for the whole window, even when it has several panes, in exactly this format, nothing else:
 task: <one short sentence: what is being done, to what>
 <name>
 <name>
